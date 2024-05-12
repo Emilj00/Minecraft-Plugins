@@ -12,16 +12,16 @@ enum class LogLevel {
     Error,
 }
 
-fun colorize(text: String) : String {
+fun colorize(text: String): String {
     return ChatColor.translateAlternateColorCodes('&', text)
 }
 
 class Messenger(private val enhancedPlugin: EnhancedPlugin) {
-    private val pluginLogger: Logger = enhancedPlugin.logger;
+    private val pluginLogger: Logger = enhancedPlugin.logger
     private val pluginPrefix: String = enhancedPlugin.getPluginPrefix()
 
     fun toCommandSender(commandSender: CommandSender, message: String, usePrefix: Boolean = true) {
-        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message");
+        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
         commandSender.sendMessage(messageToSend)
     }
 
@@ -31,7 +31,7 @@ class Messenger(private val enhancedPlugin: EnhancedPlugin) {
     }
 
     fun toPlayer(player: Player, message: String, usePrefix: Boolean = true) {
-        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message");
+        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
         player.sendMessage(messageToSend)
     }
 
