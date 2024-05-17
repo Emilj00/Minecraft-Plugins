@@ -1,6 +1,7 @@
 package me.emiljoo.minecraftplugins.utilities
 
 import me.emiljoo.minecraftplugins.utilities.commands.CommandManager
+import me.emiljoo.minecraftplugins.utilities.data.PlayerDataManager
 import me.emiljoo.minecraftplugins.utilities.modules.ModuleManager
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -16,6 +17,7 @@ abstract class EnhancedPlugin : JavaPlugin() {
 
     val messenger: Messenger = Messenger(this)
     val commandManager: CommandManager = CommandManager(this)
+    val playerDataManager: PlayerDataManager = PlayerDataManager()
     private val moduleManager: ModuleManager = ModuleManager(this)
 
     override fun onEnable() {
