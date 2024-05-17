@@ -4,6 +4,6 @@ import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.LogLevel
 
 class BasicPlugin : EnhancedPlugin() {
-    override fun getPluginPrefix(): String = "[BC]"
+    override fun getPluginPrefix(): String = "&7&l[&4&lB&f&lC&7&l]&r"
     override fun getLogLevel(): LogLevel = LogLevel.Info
 }
