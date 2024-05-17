@@ -22,6 +22,10 @@ class SitModule : EnhancedModule() {
 
     @EventHandler
     private fun vehicleExitEvent(event: EntityDismountEvent) {
+        if (event.entity !is Player) {
+            return
+        }
+
         val player: Player = event.entity as Player
         SitController.unsitPlayer(player)
     }
