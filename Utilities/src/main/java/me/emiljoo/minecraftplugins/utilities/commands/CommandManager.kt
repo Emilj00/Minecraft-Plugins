@@ -6,15 +6,16 @@ import me.emiljoo.minecraftplugins.utilities.LogLevel
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandMap
-import org.bukkit.command.PluginCommand
 import org.bukkit.plugin.SimplePluginManager
+import java.util.HashMap
 
 
-internal class CommandManager(private val plugin: EnhancedPlugin) {
+class CommandManager(private val plugin: EnhancedPlugin) {
     private val commandsPackageName: String = plugin.getPluginPackage()
     private val messenger: Messenger = plugin.messenger
 
     private val commandMap: CommandMap
+    private val commandRegistry: HashMap<String, EnhancedCommand> = HashMap()
 
     init {
         val commandMapField = SimplePluginManager::class.java.getDeclaredField("commandMap")
@@ -27,12 +28,19 @@ internal class CommandManager(private val plugin: EnhancedPlugin) {
 
         val commandClasses = classScanner.findSubclassesOf(EnhancedCommand::class.java, commandsPackageName)
         for (commandClass in commandClasses) {
-            messenger.toConsole(LogLevel.Info, "Found command at ${commandClass.`package`}.${commandClass.typeName}")
-
             val enhancedCommand: EnhancedCommand = commandClass.getConstructor().newInstance() as EnhancedCommand
-
             commandMap.register(plugin.name, enhancedCommand)
-            messenger.toConsole(LogLevel.Error, "Command called ${enhancedCommand.name} is not present in plugin.yml")
+            commandRegistry[enhancedCommand.name] = enhancedCommand
         }
+    }
+
+    fun getCommand(commandName: String): EnhancedCommand? {
+        val command: EnhancedCommand? = commandRegistry[commandName]
+
+        if (command == null) {
+            messenger.toConsole(LogLevel.Error, "Command \"$commandName\" doesn't exist")
+        }
+
+        return commandRegistry[commandName]
     }
 }

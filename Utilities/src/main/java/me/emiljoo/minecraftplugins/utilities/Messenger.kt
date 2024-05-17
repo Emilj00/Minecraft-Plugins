@@ -3,8 +3,8 @@ package me.emiljoo.minecraftplugins.utilities
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
+import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
-import java.util.logging.Logger
 
 enum class LogLevel {
     Info,
@@ -12,12 +12,14 @@ enum class LogLevel {
     Error,
 }
 
-fun colorize(text: String): String {
-    return ChatColor.translateAlternateColorCodes('&', text)
-}
-
 class Messenger(private val enhancedPlugin: EnhancedPlugin) {
-    private val pluginLogger: Logger = enhancedPlugin.logger
+    companion object {
+        fun colorize(text: String): String {
+            return ChatColor.translateAlternateColorCodes('&', text)
+        }
+    }
+
+    private val pluginBukkitSender: ConsoleCommandSender = Bukkit.getConsoleSender()
     private val pluginPrefix: String = enhancedPlugin.getPluginPrefix()
 
     fun toCommandSender(commandSender: CommandSender, message: String, usePrefix: Boolean = true) {
@@ -26,8 +28,8 @@ class Messenger(private val enhancedPlugin: EnhancedPlugin) {
     }
 
     fun toAllPlayers(message: String, usePrefix: Boolean = true) {
-        val messageToBroadcast = colorize("${if (usePrefix) pluginPrefix else ""} $message")
-        Bukkit.broadcastMessage(messageToBroadcast)
+        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
+        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.sendMessage(messageToSend) }
     }
 
     fun toPlayer(player: Player, message: String, usePrefix: Boolean = true) {
@@ -36,14 +38,14 @@ class Messenger(private val enhancedPlugin: EnhancedPlugin) {
     }
 
     fun toConsole(logLevel: LogLevel, message: String) {
-        if (logLevel > enhancedPlugin.getLogLevel()) {
+        if (enhancedPlugin.getLogLevel() > logLevel) {
             return
         }
 
         when (logLevel) {
-            LogLevel.Info -> pluginLogger.info(colorize("$pluginPrefix &f$message"))
-            LogLevel.Warning -> pluginLogger.info(colorize("$pluginPrefix &e$message"))
-            LogLevel.Error -> pluginLogger.info(colorize("$pluginPrefix &c$message"))
+            LogLevel.Info -> pluginBukkitSender.sendMessage(colorize("$pluginPrefix &f$message"))
+            LogLevel.Warning -> pluginBukkitSender.sendMessage(colorize("$pluginPrefix &e$message"))
+            LogLevel.Error -> pluginBukkitSender.sendMessage(colorize("$pluginPrefix &c$message"))
         }
     }
 }

@@ -1,6 +1,7 @@
 package me.emiljoo.minecraftplugins.utilities
 
 import me.emiljoo.minecraftplugins.utilities.commands.CommandManager
+import me.emiljoo.minecraftplugins.utilities.modules.ModuleManager
 import org.bukkit.plugin.java.JavaPlugin
 
 
@@ -13,14 +14,25 @@ abstract class EnhancedPlugin : JavaPlugin() {
         }
     }
 
-    val messenger = Messenger(this)
-    private val commandManager = CommandManager(this)
+    val messenger: Messenger = Messenger(this)
+    val commandManager: CommandManager = CommandManager(this)
+    private val moduleManager: ModuleManager = ModuleManager(this)
 
     override fun onEnable() {
         super.onEnable()
+
         instance = this
 
         commandManager.registerCommands()
+        moduleManager.registerModules()
+    }
+
+    override fun onDisable() {
+        super.onDisable()
+
+//        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Restarting server...") }
+
+        moduleManager.onPluginStopped()
     }
 
     abstract fun getPluginPrefix(): String

@@ -4,7 +4,6 @@ import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.LogLevel
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 
 abstract class EnhancedCommand(
@@ -12,7 +11,8 @@ abstract class EnhancedCommand(
     permission: String,
     description: String = "",
     usage: String = "",
-    aliases: List<String> = listOf()
+    aliases: List<String> = listOf(),
+    private var isCommandEnabled: Boolean = true
 ) :
     Command(commandName) {
 
@@ -25,7 +25,20 @@ abstract class EnhancedCommand(
 
     private val messenger: Messenger = EnhancedPlugin.getMessenger()
 
+    fun enableCommand() {
+        isCommandEnabled = true
+    }
+
+    fun disableCommand() {
+        isCommandEnabled = true
+    }
+
     override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
+        if (!isCommandEnabled) {
+            messenger.toCommandSender(sender, "&l&4This command is disabled!")
+            return true
+        }
+
         if (!sender.hasPermission(permission.toString())) {
             messenger.toCommandSender(sender, "&l&4You have no permission!")
             return true
