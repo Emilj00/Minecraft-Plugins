@@ -29,6 +29,8 @@ class CommandManager(private val plugin: EnhancedPlugin) {
         val commandClasses = classScanner.findSubclassesOf(EnhancedCommand::class.java, commandsPackageName)
         for (commandClass in commandClasses) {
             val enhancedCommand: EnhancedCommand = commandClass.getConstructor().newInstance() as EnhancedCommand
+            enhancedCommand.setPlugin(plugin)
+
             commandMap.register(plugin.name, enhancedCommand)
             commandRegistry[enhancedCommand.name] = enhancedCommand
         }

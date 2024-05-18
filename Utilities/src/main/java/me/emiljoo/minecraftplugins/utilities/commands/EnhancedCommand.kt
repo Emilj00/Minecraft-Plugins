@@ -19,18 +19,23 @@ abstract class EnhancedCommand(
     init {
         this.permission = permission
         this.description = description
-        this.usage = usage?.takeIf { it.isNotEmpty() } ?: "/$commandName"
+        this.usage = usage.takeIf { it.isNotEmpty() } ?: "/$commandName"
         this.aliases = aliases
     }
 
     private val messenger: Messenger = EnhancedPlugin.getMessenger()
+    protected var enhancedPlugin: EnhancedPlugin? = null
+
+    fun setPlugin(plugin: EnhancedPlugin) {
+        this.enhancedPlugin = plugin
+    }
 
     fun enableCommand() {
         isCommandEnabled = true
     }
 
     fun disableCommand() {
-        isCommandEnabled = true
+        isCommandEnabled = false
     }
 
     override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {

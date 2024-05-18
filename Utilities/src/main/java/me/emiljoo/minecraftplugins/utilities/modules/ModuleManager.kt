@@ -2,8 +2,8 @@ package me.emiljoo.minecraftplugins.utilities.modules
 
 import me.emiljoo.minecraftplugins.utilities.ClassScanner
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
-import me.emiljoo.minecraftplugins.utilities.LogLevel
 import me.emiljoo.minecraftplugins.utilities.Messenger
+import me.emiljoo.minecraftplugins.utilities.data.PlayerDataRegistererModule
 import org.bukkit.Bukkit
 import org.bukkit.plugin.PluginManager
 
@@ -16,11 +16,14 @@ class ModuleManager(private val plugin: EnhancedPlugin) {
 
     fun registerModules() {
         val classScanner = ClassScanner()
-        val modules = classScanner.findSubclassesOf(EnhancedModule::class.java, modulesPackageName)
+        val scannedModules: MutableSet<out Class<*>> = classScanner.findSubclassesOf(EnhancedModule::class.java, modulesPackageName)
 
-        messenger.toConsole(LogLevel.Error, "-------------------------------- ${modules.count()}")
-        for (module in modules) {
-            messenger.toAllPlayers(module.toString())
+        val modules: MutableSet<Class<*>> = mutableSetOf()
+        modules.addAll(scannedModules)
+
+        modules.add(PlayerDataRegistererModule::class.java)
+
+        for (module in modules.iterator()) {
             val moduleInstance: EnhancedModule = module.getConstructor().newInstance() as EnhancedModule
 
             pluginManager.registerEvents(moduleInstance, plugin)

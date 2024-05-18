@@ -62,7 +62,7 @@ class GamemodeCommand : EnhancedCommand(
             messenger.toCommandSender(sender, "&4$playerName&r's game mode has been changed to &4${newGameMode.toString().lowercase()}&r.")
         }
 
-        messenger.toCommandSender(player, "Your game mode has been changed to &4${newGameMode.toString().lowercase()}&r.")
+        messenger.toPlayer(player, "Your game mode has been changed to &4${newGameMode.toString().lowercase()}&r.")
         return
     }
 
