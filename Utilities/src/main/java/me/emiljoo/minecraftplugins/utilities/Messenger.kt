@@ -23,17 +23,17 @@ class Messenger(private val enhancedPlugin: EnhancedPlugin) {
     private val pluginPrefix: String = enhancedPlugin.getPluginPrefix()
 
     fun toCommandSender(commandSender: CommandSender, message: String, usePrefix: Boolean = true) {
-        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
+        val messageToSend = colorize("${if (usePrefix) "$pluginPrefix " else ""}$message")
         commandSender.sendMessage(messageToSend)
     }
 
     fun toAllPlayers(message: String, usePrefix: Boolean = true) {
-        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
+        val messageToSend = colorize("${if (usePrefix) "$pluginPrefix " else ""}$message")
         Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.sendMessage(messageToSend) }
     }
 
     fun toPlayer(player: Player, message: String, usePrefix: Boolean = true) {
-        val messageToSend = colorize("${if (usePrefix) pluginPrefix else ""} $message")
+        val messageToSend = colorize("${if (usePrefix) "$pluginPrefix " else ""}$message")
         player.sendMessage(messageToSend)
     }
 
