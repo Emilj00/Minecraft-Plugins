@@ -2,6 +2,7 @@ package me.emiljoo.minecraftplugins.utilities.controllers
 
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.data.types.TimerPlayerDataEntry
+import me.emiljoo.minecraftplugins.utilities.events.EnhancedEvent
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
 import org.bukkit.scheduler.BukkitRunnable
 
@@ -9,9 +10,14 @@ class TimerController() {
     private var isTimersTicking: Boolean = false
     private val timersList: MutableList<TimerPlayerDataEntry> = ArrayList()
 
+    val onTimersTickEvent = EnhancedEvent<TimerPlayerDataEntry>();
+
     private val runnable = object : BukkitRunnable() {
         override fun run() {
-            timersList.forEach { timer -> timer.tick() }
+            timersList.forEach { timer ->
+                timer.tick()
+                onTimersTickEvent.invoke(timer)
+            }
         }
     }
 

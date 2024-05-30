@@ -31,7 +31,7 @@ class VanishModule : EnhancedModule() {
         val playerData: PlayerData? = playerDataManager!!.findPlayerData(player)
 
         if (!playerData!!.hasEntry(VanishCommand.VANISH_ENTRY_NAME)) {
-            val vanishEntry = BoolPlayerDataEntry(false)
+            val vanishEntry = BoolPlayerDataEntry(false, playerData)
             playerData.addDataEntry(VanishCommand.VANISH_ENTRY_NAME, vanishEntry)
             return
         }
