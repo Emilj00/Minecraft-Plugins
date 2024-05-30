@@ -1,6 +1,10 @@
 package me.emiljoo.minecraftplugins.utilities.data.types
 
-class TimerPlayerDataEntry(private val startingValue: Int) : IntPlayerDataEntry(startingValue) {
+import me.emiljoo.minecraftplugins.utilities.data.PlayerData
+
+class TimerPlayerDataEntry(private val startingValue: Int, ownerPlayerData: PlayerData) :
+    IntPlayerDataEntry(startingValue, ownerPlayerData) {
+
     fun tick() {
         val currentValue = getValue()
 

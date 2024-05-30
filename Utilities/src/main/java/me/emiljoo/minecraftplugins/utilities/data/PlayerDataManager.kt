@@ -11,7 +11,7 @@ class PlayerDataManager {
             return
         }
 
-        playerDataMap[player] = PlayerData()
+        playerDataMap[player] = PlayerData(player)
     }
 
     fun findPlayerData(player: Player): PlayerData? {
