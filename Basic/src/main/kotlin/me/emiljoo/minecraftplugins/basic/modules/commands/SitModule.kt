@@ -1,4 +1,4 @@
-package me.emiljoo.minecraftplugins.basic.modules
+package me.emiljoo.minecraftplugins.basic.modules.commands
 
 import me.emiljoo.minecraftplugins.basic.controllers.SitController
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
@@ -46,7 +46,7 @@ class SitModule : EnhancedModule() {
             return
         }
 
-        val blockPosition = event.clickedBlock!!.location.subtract(-0.5, 0.0, -0.5)
+        val blockPosition = event.clickedBlock!!.location.subtract(-0.5, -0.3, -0.5)
         SitController.sitPlayer(player, blockPosition)
     }
 

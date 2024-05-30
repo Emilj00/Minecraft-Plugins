@@ -1,7 +1,7 @@
 package me.emiljoo.minecraftplugins.basic.controllers
 
 import me.emiljoo.minecraftplugins.basic.commands.SitCommand
-import me.emiljoo.minecraftplugins.basic.modules.SitModule
+import me.emiljoo.minecraftplugins.basic.modules.commands.SitModule
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.isGrounded
 import org.bukkit.Location
@@ -73,14 +73,14 @@ class SitController(private val sitModule: SitModule) {
 
         private fun createChair(playerLocation: Location, chairLocation: Location): ArmorStand {
             val chairWorld: World? = chairLocation.world
-            val armorStand: ArmorStand = chairWorld!!.spawnEntity(chairLocation.subtract(0.0, 1.6, 0.0), EntityType.ARMOR_STAND) as ArmorStand
+            val armorStand: ArmorStand = chairWorld!!.spawnEntity(chairLocation.subtract(0.0, 1.8, 0.0), EntityType.ARMOR_STAND) as ArmorStand
 
             armorStand.isSilent = true
             armorStand.isCollidable = false
             armorStand.isVisible = false
             armorStand.setGravity(false)
             armorStand.setRotation(playerLocation.yaw, playerLocation.pitch)
-            
+
             return armorStand
         }
     }

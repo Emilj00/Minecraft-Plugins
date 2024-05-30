@@ -1,9 +1,7 @@
-package me.emiljoo.minecraftplugins.basic.modules
+package me.emiljoo.minecraftplugins.basic.modules.commands
 
 import me.emiljoo.minecraftplugins.basic.commands.VanishCommand
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
-import me.emiljoo.minecraftplugins.utilities.LogLevel
-import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
 import me.emiljoo.minecraftplugins.utilities.data.PlayerData
 import me.emiljoo.minecraftplugins.utilities.data.PlayerDataManager
 import me.emiljoo.minecraftplugins.utilities.data.types.BoolPlayerDataEntry
