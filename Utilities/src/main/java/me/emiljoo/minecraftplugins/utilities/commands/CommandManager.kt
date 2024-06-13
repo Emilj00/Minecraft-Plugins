@@ -10,10 +10,7 @@ import org.bukkit.plugin.SimplePluginManager
 import java.util.HashMap
 
 
-class CommandManager(private val plugin: EnhancedPlugin) {
-    private val commandsPackageName: String = plugin.getPluginPackage()
-    private val messenger: Messenger = plugin.messenger
-
+class CommandManager() {
     private val commandMap: CommandMap
     private val commandRegistry: HashMap<String, EnhancedCommand> = HashMap()
 
@@ -23,13 +20,13 @@ class CommandManager(private val plugin: EnhancedPlugin) {
         commandMap = commandMapField.get(Bukkit.getPluginManager()) as CommandMap
     }
 
-    fun registerCommands() {
+    fun registerCommands(plugin: EnhancedPlugin) {
+        val commandsPackageName: String = plugin.getPluginPackage()
         val classScanner = ClassScanner()
 
         val commandClasses = classScanner.findSubclassesOf(EnhancedCommand::class.java, commandsPackageName)
         for (commandClass in commandClasses) {
             val enhancedCommand: EnhancedCommand = commandClass.getConstructor().newInstance() as EnhancedCommand
-            enhancedCommand.setPlugin(plugin)
 
             commandMap.register(plugin.name, enhancedCommand)
             commandRegistry[enhancedCommand.name] = enhancedCommand
@@ -40,7 +37,7 @@ class CommandManager(private val plugin: EnhancedPlugin) {
         val command: EnhancedCommand? = commandRegistry[commandName]
 
         if (command == null) {
-            messenger.toConsole(LogLevel.Error, "Command \"$commandName\" doesn't exist")
+            EnhancedPlugin.getMessenger().toConsole(LogLevel.Error, "Command \"$commandName\" doesn't exist")
         }
 
         return commandRegistry[commandName]

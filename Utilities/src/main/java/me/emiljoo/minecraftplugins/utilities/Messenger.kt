@@ -14,9 +14,7 @@ enum class LogLevel {
 
 class Messenger(private val enhancedPlugin: EnhancedPlugin) {
     companion object {
-        fun colorize(text: String): String {
-            return ChatColor.translateAlternateColorCodes('&', text)
-        }
+        fun colorize(text: String): String = ChatColor.translateAlternateColorCodes('&', text)
     }
 
     private val pluginBukkitSender: ConsoleCommandSender = Bukkit.getConsoleSender()

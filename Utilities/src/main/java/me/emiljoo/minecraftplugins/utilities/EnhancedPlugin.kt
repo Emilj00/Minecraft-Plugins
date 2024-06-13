@@ -12,31 +12,37 @@ abstract class EnhancedPlugin : JavaPlugin() {
     companion object {
         private var instance: EnhancedPlugin? = null
 
+        fun getInstance(): EnhancedPlugin {
+            return instance ?: throw IllegalStateException("Plugin instance is not initialized")
+        }
+
         fun getMessenger(): Messenger {
-            return instance?.messenger ?: throw IllegalStateException("Messenger is not initialized")
+            return getInstance().messenger
         }
     }
 
     val messenger: Messenger = Messenger(this)
-    val commandManager: CommandManager = CommandManager(this)
+    val commandManager: CommandManager = CommandManager()
     val playerDataManager: PlayerDataManager = PlayerDataManager()
-    private val moduleManager: ModuleManager = ModuleManager(this)
+    private val moduleManager: ModuleManager = ModuleManager()
 
     override fun onEnable() {
-        super.onEnable()
-
         instance = this
 
-        commandManager.registerCommands()
-        moduleManager.registerModules()
+        super.onEnable()
+
+        commandManager.registerCommands(this)
+        moduleManager.registerModules(this)
+
+        moduleManager.onPluginStarted(this)
     }
 
     override fun onDisable() {
         super.onDisable()
 
-        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Restarting server...") }
+        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Stopping server...") }
 
-        moduleManager.onPluginStopped()
+        moduleManager.onPluginStopped(this)
     }
 
     abstract fun getPluginPrefix(): String

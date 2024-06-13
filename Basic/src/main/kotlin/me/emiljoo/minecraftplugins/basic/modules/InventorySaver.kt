@@ -2,6 +2,7 @@ package me.emiljoo.minecraftplugins.basic.modules
 
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
+import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.inventory.ItemStack
@@ -24,6 +25,13 @@ class InventorySaver : EnhancedModule() {
         event.keepInventory = true
 
         val player = event.entity
+
+        val world: World = player.location.world!!
+        if (world.isGameRule("keepInventory")) {
+            event.drops.clear()
+
+            return
+        }
 
         val drops: MutableList<ItemStack> = event.drops
         val inventory = player.inventory.contents

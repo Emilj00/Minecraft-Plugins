@@ -24,11 +24,6 @@ abstract class EnhancedCommand(
     }
 
     private val messenger: Messenger = EnhancedPlugin.getMessenger()
-    protected var enhancedPlugin: EnhancedPlugin? = null
-
-    fun setPlugin(plugin: EnhancedPlugin) {
-        this.enhancedPlugin = plugin
-    }
 
     fun enableCommand() {
         isCommandEnabled = true

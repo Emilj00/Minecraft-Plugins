@@ -2,16 +2,13 @@ package me.emiljoo.minecraftplugins.utilities.data
 
 import org.bukkit.entity.Player
 import java.util.HashMap
+import java.util.UUID
 
 class PlayerDataManager {
-    private val playerDataMap: HashMap<Player, PlayerData> = HashMap()
+    private val playerDataMap: MutableMap<UUID, PlayerData> = mutableMapOf()
 
     fun addPlayerData(player: Player) {
-        if (hasPlayerData(player)) {
-            return
-        }
-
-        playerDataMap[player] = PlayerData(player)
+        playerDataMap[player.uniqueId] = PlayerData(player)
     }
 
     fun findPlayerData(player: Player): PlayerData? {
@@ -19,7 +16,7 @@ class PlayerDataManager {
             return null
         }
 
-        return playerDataMap[player]
+        return playerDataMap[player.uniqueId]
     }
 
     fun deletePlayerData(player: Player) {
@@ -27,10 +24,10 @@ class PlayerDataManager {
             return
         }
 
-        playerDataMap.remove(player)
+        playerDataMap.remove(player.uniqueId)
     }
 
-    fun hasPlayerData(player: Player): Boolean {
-        return playerDataMap.containsKey(player)
+    private fun hasPlayerData(player: Player): Boolean {
+        return playerDataMap.containsKey(player.uniqueId)
     }
 }
