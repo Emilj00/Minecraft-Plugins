@@ -1,7 +1,6 @@
 package me.emiljoo.minecraftplugins.basic.modules
 
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
-import me.emiljoo.minecraftplugins.utilities.LogLevel
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.controllers.TimerController
 import me.emiljoo.minecraftplugins.utilities.data.PlayerData
@@ -45,8 +44,6 @@ class CombatTag : EnhancedModule() {
         val textComponent = TextComponent(message);
 
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, textComponent)
-
-        EnhancedPlugin.getMessenger().toAllPlayers("Timer: ${timer.getValue()}")
     }
 
     override fun onEnable(plugin: EnhancedPlugin) {
