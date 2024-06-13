@@ -14,8 +14,8 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
 class VanishModule : EnhancedModule() {
-    private var playerDataManager: PlayerDataManager? = null
-    private var enhancedPlugin: EnhancedPlugin? = null
+    private lateinit var playerDataManager: PlayerDataManager
+    private lateinit var enhancedPlugin: EnhancedPlugin
 
     override fun onEnable(plugin: EnhancedPlugin) {
         playerDataManager = plugin.playerDataManager
@@ -27,25 +27,23 @@ class VanishModule : EnhancedModule() {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private fun onPlayerJoin(event: PlayerJoinEvent) {
-        val player: Player = event.player
-        val playerData: PlayerData? = playerDataManager!!.findPlayerData(player)
+        val playerThatJoin: Player = event.player
+        val playerData: PlayerData = playerDataManager.findPlayerData(playerThatJoin) ?: return
 
-        if (!playerData!!.hasEntry(VanishCommand.VANISH_ENTRY_NAME)) {
+        if (!playerData.hasEntry(VanishCommand.VANISH_ENTRY_NAME)) {
             val vanishEntry = BoolPlayerDataEntry(false, playerData)
             playerData.addDataEntry(VanishCommand.VANISH_ENTRY_NAME, vanishEntry)
-            return
         }
 
         Bukkit.getOnlinePlayers().forEach { onlinePlayer ->
             run {
-                val onlinePlayerData: PlayerData? = playerDataManager!!.findPlayerData(onlinePlayer)
-                val vanishPlayerData: BoolPlayerDataEntry =
-                    onlinePlayerData!!.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
+                val onlinePlayerData: PlayerData = playerDataManager.findPlayerData(onlinePlayer) ?: return
+                val vanishPlayerData = onlinePlayerData.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
 
                 if (vanishPlayerData.getValue()) {
-                    player.hidePlayer(enhancedPlugin!!, onlinePlayer)
+                    playerThatJoin.hidePlayer(enhancedPlugin, onlinePlayer)
                 } else {
-                    player.showPlayer(enhancedPlugin!!, onlinePlayer)
+                    playerThatJoin.showPlayer(enhancedPlugin, onlinePlayer)
                 }
             }
         }
@@ -62,9 +60,9 @@ class VanishModule : EnhancedModule() {
     @EventHandler
     private fun onPlayerQuit(event: PlayerQuitEvent) {
         val player: Player = event.player
-        val playerData: PlayerData? = playerDataManager!!.findPlayerData(player)
+        val playerData: PlayerData? = playerDataManager.findPlayerData(player)
 
-        val vanishEntry = playerData!!.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
+        val vanishEntry = playerData?.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
 
         if (!vanishEntry.getValue()) {
             return
