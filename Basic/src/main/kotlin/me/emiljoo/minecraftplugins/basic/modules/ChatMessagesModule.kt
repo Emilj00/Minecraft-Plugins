@@ -48,7 +48,7 @@ class ChatMessagesModule : EnhancedModule() {
                 .replace(":confused:".toRegex(), "(•ิ_•ิ)")
 
             val playerName = wordInMessage.replace('@', ' ').trim()
-            val player: Player? = Bukkit.getPlayer(playerName)
+            val player: Player? = Bukkit.getPlayerExact(playerName)
 
             if (player != null && player.isOnline) {
                 wordInMessage = "&b&l@${player.name}&r"

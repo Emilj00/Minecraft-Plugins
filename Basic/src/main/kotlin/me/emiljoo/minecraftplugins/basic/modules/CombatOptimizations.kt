@@ -4,6 +4,7 @@ import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
 import org.bukkit.Bukkit
 import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -13,6 +14,11 @@ import org.bukkit.event.player.PlayerJoinEvent
 
 
 class CombatOptimizations : EnhancedModule() {
+    companion object {
+        private const val DEFAULT_ATTACK_SPEED: Double = 4.0
+        private const val DEFAULT_NO_DAMAGE_TICKS: Int = 10
+    }
+
     override fun onEnable(plugin: EnhancedPlugin) {
         for (player in Bukkit.getOnlinePlayers()) {
             setAttackSpeed(player)
@@ -42,9 +48,9 @@ class CombatOptimizations : EnhancedModule() {
 
     @EventHandler
     private fun onEntityHit(e: EntityDamageByEntityEvent) {
-        val damagerEntity = e.damager.type
+        val damagingEntityType = e.damager.type
 
-        when (damagerEntity) {
+        when (damagingEntityType) {
             EntityType.SNOWBALL, EntityType.EGG, EntityType.ENDER_PEARL -> {
                 if (e.damage == 0.0) {
                     if (e.isApplicable(EntityDamageEvent.DamageModifier.ABSORPTION)) {
@@ -53,14 +59,18 @@ class CombatOptimizations : EnhancedModule() {
                 }
             }
 
-            else -> {}
+            else -> return
         }
     }
 
     private fun setAttackSpeed(player: Player) {
-        player.maximumNoDamageTicks = 16
+        val attackSpeedAttribute: AttributeInstance = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED) ?: return
 
-        val attribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED) ?: return
-        attribute.baseValue = 6.5
+        player.maximumNoDamageTicks = if (isCombatSpeedFixEnabled()) 16 else DEFAULT_NO_DAMAGE_TICKS
+        attackSpeedAttribute.baseValue = if (isCombatSpeedFixEnabled()) 6.5 else DEFAULT_ATTACK_SPEED
+    }
+
+    private fun isCombatSpeedFixEnabled(): Boolean {
+        return true
     }
 }

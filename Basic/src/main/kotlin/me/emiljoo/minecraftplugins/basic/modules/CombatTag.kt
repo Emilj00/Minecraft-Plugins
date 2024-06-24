@@ -23,12 +23,10 @@ class CombatTag : EnhancedModule() {
     companion object {
         const val COMBAT_TAG_TIME: Int = 15
         const val COMBAT_TIMER_KEY: String = "pvp-timer"
-
-        val timerController: TimerController = TimerController()
     }
 
-    private var playerDataManager: PlayerDataManager? = null
-    private val messenger: Messenger = EnhancedPlugin.getMessenger();
+    private lateinit var playerDataManager: PlayerDataManager
+    private val timerController: TimerController = TimerController()
 
     private fun onTimersTick(timer: TimerPlayerDataEntry) {
         if (timer.getValue() <= 0) {
@@ -59,21 +57,14 @@ class CombatTag : EnhancedModule() {
 
     @EventHandler
     private fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
-        if (event.entity !is Player || event.damager !is Player) {
-            return
+        if (event.entity is Player && event.damager is Player) {
+            handleCombatTagTimer(event.entity as Player)
+            handleCombatTagTimer(event.damager as Player)
         }
-
-        val victim: Player = event.entity as Player
-        val victimPlayerData: PlayerData? = playerDataManager?.findPlayerData(victim)
-        resetTimer(victimPlayerData)
-
-        val attacker: Player = event.damager as Player
-        val attackerPlayerData: PlayerData? = playerDataManager?.findPlayerData(attacker)
-        resetTimer(attackerPlayerData)
     }
 
-    private fun resetTimer(playerData: PlayerData?) {
-        playerData ?: return
+    private fun handleCombatTagTimer(player: Player) {
+        val playerData: PlayerData = playerDataManager.findPlayerData(player) ?: return
 
         if (playerData.hasEntry(COMBAT_TIMER_KEY)) {
             val victimCombatTimer = playerData.getDataEntry(COMBAT_TIMER_KEY) as TimerPlayerDataEntry

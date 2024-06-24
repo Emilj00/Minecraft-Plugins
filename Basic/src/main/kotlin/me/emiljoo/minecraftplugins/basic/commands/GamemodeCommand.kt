@@ -39,7 +39,7 @@ class GamemodeCommand : EnhancedCommand(
         when (args.size) {
             0 -> handleNoArgs(sender, messenger)
             1 -> handleOneArg(sender, messenger, args[0] as GameMode)
-            2 -> handleTwoArgs(sender, args[0] as GameMode, args[1] as Player, messenger)
+            2 -> handleTwoArgs(sender, args[0] as GameMode, args[1] as Player?, messenger)
             else -> messenger.toCommandSender(sender, usage)
         }
     }
@@ -67,8 +67,8 @@ class GamemodeCommand : EnhancedCommand(
         }
     }
 
-    private fun handleTwoArgs(sender: CommandSender, gameMode: GameMode, player: Player, messenger: Messenger) {
-        if (!player.isOnline) {
+    private fun handleTwoArgs(sender: CommandSender, gameMode: GameMode, player: Player?, messenger: Messenger) {
+        if (player == null || !player.isOnline) {
             messenger.toCommandSender(sender, "Player is not online!")
             return
         }

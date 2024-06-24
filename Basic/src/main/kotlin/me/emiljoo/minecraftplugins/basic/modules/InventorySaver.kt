@@ -38,7 +38,7 @@ class InventorySaver : EnhancedModule() {
 
         for (i in inventory.indices) {
             if (inventory[i] != null) {
-                if (Random.nextBoolean()) { //TODO: Set it for percentage and Config it
+                if (Random.nextBoolean()) {
                     drops.remove(inventory[i])
                 } else {
                     inventory[i] = null
