@@ -1,6 +1,7 @@
 package me.emiljoo.minecraftplugins.utilities
 
 import me.emiljoo.minecraftplugins.utilities.commands.CommandManager
+import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import me.emiljoo.minecraftplugins.utilities.data.PlayerDataManager
 import me.emiljoo.minecraftplugins.utilities.modules.ModuleManager
 import org.bukkit.Bukkit
@@ -21,9 +22,10 @@ abstract class EnhancedPlugin : JavaPlugin() {
         }
     }
 
-    val messenger: Messenger = Messenger(this)
     val commandManager: CommandManager = CommandManager()
+    val messenger: Messenger = Messenger(this)
     val playerDataManager: PlayerDataManager = PlayerDataManager()
+    val configManager: ConfigManager = ConfigManager(this, "config.yml")
     private val moduleManager: ModuleManager = ModuleManager()
 
     override fun onEnable() {
@@ -41,7 +43,6 @@ abstract class EnhancedPlugin : JavaPlugin() {
         super.onDisable()
 
         Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Stopping server...") }
-
         moduleManager.onPluginStopped(this)
     }
 
