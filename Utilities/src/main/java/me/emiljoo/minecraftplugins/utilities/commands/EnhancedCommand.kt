@@ -24,6 +24,7 @@ abstract class EnhancedCommand(
     }
 
     private val messenger: Messenger = EnhancedPlugin.getMessenger()
+    private val arguments: MutableList<CommandArgument<*>> = mutableListOf()
 
     fun enableCommand() {
         isCommandEnabled = true
@@ -31,6 +32,11 @@ abstract class EnhancedCommand(
 
     fun disableCommand() {
         isCommandEnabled = false
+    }
+
+    override fun setName(name: String): Boolean {
+        messenger.toConsole(LogLevel.Warning, "$4You can't change command's name!")
+        return false
     }
 
     override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
@@ -44,15 +50,25 @@ abstract class EnhancedCommand(
             return true
         }
 
-        onCommandExecution(sender, commandLabel, args, messenger)
+        val parsedArgs = arguments.mapIndexed { index, argument ->
+            argument.parse(sender, args.getOrNull(index) ?: "")
+        }
+
+        onCommandExecution(sender, commandLabel, parsedArgs, messenger)
 
         return true
     }
 
-    abstract fun onCommandExecution(sender: CommandSender, commandLabel: String, args: Array<out String>, messenger: Messenger)
+    abstract fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger)
 
-    override fun setName(name: String): Boolean {
-        messenger.toConsole(LogLevel.Warning, "$4You can't change command's name!")
-        return false
+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): List<String> {
+        val argumentIndex: Int = args.size - 1
+        val argument: CommandArgument<*> = arguments.getOrNull(argumentIndex) ?: return emptyList()
+
+        return argument.complete(sender, args[argumentIndex])
+    }
+
+    protected fun addArgument(argument: CommandArgument<*>) {
+        arguments.add(argument)
     }
 }

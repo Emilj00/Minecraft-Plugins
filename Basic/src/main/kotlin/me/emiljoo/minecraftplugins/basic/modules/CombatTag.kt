@@ -4,6 +4,7 @@ import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.controllers.TimerController
 import me.emiljoo.minecraftplugins.utilities.data.PlayerData
+import me.emiljoo.minecraftplugins.utilities.data.PlayerDataEntry
 import me.emiljoo.minecraftplugins.utilities.data.PlayerDataManager
 import me.emiljoo.minecraftplugins.utilities.data.types.TimerPlayerDataEntry
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
@@ -103,11 +104,13 @@ class CombatTag : EnhancedModule() {
         val player: Player = event.player
 
         val playerData: PlayerData = playerDataManager!!.findPlayerData(player) ?: return
-        val timerEntry = playerData.getDataEntry(COMBAT_TIMER_KEY) as TimerPlayerDataEntry
+        val timerEntry: PlayerDataEntry<*> = playerData.getDataEntry(COMBAT_TIMER_KEY) ?: return
 
-        if (!timerEntry.isTimerFinished()) {
+        val combatTimer: TimerPlayerDataEntry = timerEntry as TimerPlayerDataEntry
+
+        if (!combatTimer.isTimerFinished()) {
             player.health = 0.0
-            timerEntry.setTimerFinished()
+            combatTimer.setTimerFinished()
         }
     }
 }

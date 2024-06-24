@@ -23,7 +23,7 @@ class ModuleManager() {
 
         for (module in modulesToInstantiate.iterator()) {
             val moduleInstance: EnhancedModule = module.getConstructor().newInstance() as EnhancedModule
-            modules.add(moduleInstance);
+            modules.add(moduleInstance)
 
             pluginManager.registerEvents(moduleInstance, plugin)
         }

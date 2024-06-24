@@ -20,7 +20,7 @@ class VanishCommand : EnhancedCommand(
 
     private val enhancedPlugin: EnhancedPlugin = EnhancedPlugin.getInstance();
 
-    override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: Array<out String>, messenger: Messenger) {
+    override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger) {
         if (sender !is Player) {
             messenger.toCommandSender(sender, "You can only use this command as player!")
             return
