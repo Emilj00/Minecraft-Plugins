@@ -1,12 +1,28 @@
 package me.emiljoo.minecraftplugins.basic.commands
 
 import me.emiljoo.minecraftplugins.utilities.Messenger
-import me.emiljoo.minecraftplugins.utilities.commands.CommandArgument
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
+import me.emiljoo.minecraftplugins.utilities.commands.ICommandArgument
 import me.emiljoo.minecraftplugins.utilities.commands.arguments.PlayerArgument
 import org.bukkit.GameMode
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+
+private class GameModeArgument : ICommandArgument<GameMode> {
+    override fun parse(sender: CommandSender, input: String): GameMode {
+        return when (input.lowercase()) {
+            "1", "c", "creative" -> GameMode.CREATIVE
+            "2", "a", "adventure" -> GameMode.ADVENTURE
+            "3", "spec", "spectator" -> GameMode.SPECTATOR
+            else -> GameMode.SURVIVAL
+        }
+    }
+
+    override fun complete(sender: CommandSender, input: String): List<String> {
+        val modes = listOf("creative", "survival", "adventure", "spectator")
+        return modes.filter { it.startsWith(input, ignoreCase = true) }
+    }
+}
 
 class GamemodeCommand : EnhancedCommand(
     "gamemode",
@@ -14,22 +30,6 @@ class GamemodeCommand : EnhancedCommand(
     usage = "/gamemode <mode> [player]",
     aliases = listOf("gm")
 ) {
-    private class GameModeArgument : CommandArgument<GameMode> {
-        override fun parse(sender: CommandSender, input: String): GameMode {
-            return when (input.lowercase()) {
-                "1", "c", "creative" -> GameMode.CREATIVE
-                "2", "a", "adventure" -> GameMode.ADVENTURE
-                "3", "spec", "spectator" -> GameMode.SPECTATOR
-                else -> GameMode.SURVIVAL
-            }
-        }
-
-        override fun complete(sender: CommandSender, input: String): List<String> {
-            val modes = listOf("creative", "survival", "adventure", "spectator")
-            return modes.filter { it.startsWith(input, ignoreCase = true) }
-        }
-    }
-
     init {
         addArgument(GameModeArgument())
         addArgument(PlayerArgument())

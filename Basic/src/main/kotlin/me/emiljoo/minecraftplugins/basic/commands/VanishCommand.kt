@@ -1,5 +1,6 @@
 package me.emiljoo.minecraftplugins.basic.commands
 
+import me.emiljoo.minecraftplugins.basic.modules.ChatMessagesModule
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
@@ -33,10 +34,12 @@ class VanishCommand : EnhancedCommand(
         vanishEntry.toggleValue()
 
         if (vanishEntry.getValue()) {
-            messenger.toAllPlayers("&7&l[&4&l-&7&l] &7${player.name}", false)
+            val joinMessage = ChatMessagesModule.playerJoinConfigField.get().replace("{player}", player.name)
+            messenger.toAllPlayers(joinMessage, false)
             Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.hidePlayer(enhancedPlugin, player) }
         } else {
-            messenger.toAllPlayers("&7&l[&2&l+&7&l] &7${player.name}", false)
+            val quitMessage = ChatMessagesModule.playerQuitConfigField.get().replace("{player}", player.name)
+            messenger.toAllPlayers(quitMessage, false)
             Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.showPlayer(enhancedPlugin, player) }
         }
     }

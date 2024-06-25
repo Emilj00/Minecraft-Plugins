@@ -2,6 +2,7 @@ package me.emiljoo.minecraftplugins.basic.modules
 
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
+import me.emiljoo.minecraftplugins.utilities.config.ConfigField
 import me.emiljoo.minecraftplugins.utilities.controllers.TimerController
 import me.emiljoo.minecraftplugins.utilities.data.PlayerData
 import me.emiljoo.minecraftplugins.utilities.data.PlayerDataEntry
@@ -21,14 +22,20 @@ import org.bukkit.event.player.PlayerQuitEvent
 
 class CombatTag : EnhancedModule() {
     companion object {
-        const val COMBAT_TAG_TIME: Int = 15
         const val COMBAT_TIMER_KEY: String = "pvp-timer"
     }
 
     private lateinit var playerDataManager: PlayerDataManager
     private val timerController: TimerController = TimerController()
 
+    private lateinit var combatTagTimeConfigField: ConfigField<Int>
+    private var combatTagEnabled: Boolean = true
+
     private fun onTimersTick(timer: TimerPlayerDataEntry) {
+        if (!combatTagEnabled) {
+            return
+        }
+
         if (timer.getValue() <= 0) {
             return;
         }
@@ -36,20 +43,24 @@ class CombatTag : EnhancedModule() {
         val playerData: PlayerData = timer.getOwnerPlayerData()
         val player: Player = playerData.getOwner();
 
-        val bracketColor: String =
+        val textColor: String =
             if (timer.getValue() % 2 == 0) ChatColor.GRAY.toString() else ChatColor.WHITE.toString()
 
-        val message: String = Messenger.colorize("&c&l> > > ${bracketColor}&lANTILOGOUT &c&l< < <")
+        val message: String = Messenger.colorize("&c&l> > > ${textColor}&lANTILOGOUT &c&l< < <")
         val textComponent = TextComponent(message);
 
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, textComponent)
     }
 
     override fun onEnable(plugin: EnhancedPlugin) {
+        val configManager = plugin.configManager
+        combatTagTimeConfigField = ConfigField(configManager, "modules.combat-tag.combat-tag-time", 15)
+        combatTagEnabled = combatTagTimeConfigField.get() > 0
+
         playerDataManager = plugin.playerDataManager
         timerController.startTimers(plugin)
 
-        timerController.onTimersTickEvent += ::onTimersTick
+        timerController.onTimerTick += ::onTimersTick
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {
@@ -57,6 +68,10 @@ class CombatTag : EnhancedModule() {
 
     @EventHandler
     private fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
+        if (!combatTagEnabled) {
+            return
+        }
+
         if (event.entity is Player && event.damager is Player) {
             handleCombatTagTimer(event.entity as Player)
             handleCombatTagTimer(event.damager as Player)
@@ -78,13 +93,17 @@ class CombatTag : EnhancedModule() {
     }
 
     private fun createCombatTimer(playerData: PlayerData): TimerPlayerDataEntry {
-        return TimerPlayerDataEntry(COMBAT_TAG_TIME, playerData)
+        return TimerPlayerDataEntry(combatTagTimeConfigField.get(), playerData)
     }
 
     @EventHandler
     private fun onPlayerDeath(event: PlayerDeathEvent) {
-        val player: Player = event.entity.player!!
-        val playerData: PlayerData? = playerDataManager!!.findPlayerData(player)
+        if (!combatTagEnabled) {
+            return
+        }
+
+        val player: Player = event.entity.player ?: return
+        val playerData: PlayerData? = playerDataManager.findPlayerData(player)
 
         val timerEntry = playerData!!.getDataEntry(COMBAT_TIMER_KEY) as TimerPlayerDataEntry
         timerEntry.setTimerFinished()
@@ -92,9 +111,13 @@ class CombatTag : EnhancedModule() {
 
     @EventHandler(priority = EventPriority.LOWEST)
     private fun onPlayerQuit(event: PlayerQuitEvent) {
+        if (!combatTagEnabled) {
+            return
+        }
+
         val player: Player = event.player
 
-        val playerData: PlayerData = playerDataManager!!.findPlayerData(player) ?: return
+        val playerData: PlayerData = playerDataManager.findPlayerData(player) ?: return
         val timerEntry: PlayerDataEntry<*> = playerData.getDataEntry(COMBAT_TIMER_KEY) ?: return
 
         val combatTimer: TimerPlayerDataEntry = timerEntry as TimerPlayerDataEntry

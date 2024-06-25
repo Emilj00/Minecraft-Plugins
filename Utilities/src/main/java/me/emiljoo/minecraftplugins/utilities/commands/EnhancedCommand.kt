@@ -24,7 +24,7 @@ abstract class EnhancedCommand(
     }
 
     private val messenger: Messenger = EnhancedPlugin.getMessenger()
-    private val arguments: MutableList<CommandArgument<*>> = mutableListOf()
+    private val arguments: MutableList<ICommandArgument<*>> = mutableListOf()
 
     fun enableCommand() {
         isCommandEnabled = true
@@ -59,16 +59,16 @@ abstract class EnhancedCommand(
         return true
     }
 
-    abstract fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger)
+    protected abstract fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger)
 
     override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): List<String> {
         val argumentIndex: Int = args.size - 1
-        val argument: CommandArgument<*> = arguments.getOrNull(argumentIndex) ?: return emptyList()
+        val argument: ICommandArgument<*> = arguments.getOrNull(argumentIndex) ?: return emptyList()
 
         return argument.complete(sender, args[argumentIndex])
     }
 
-    protected fun addArgument(argument: CommandArgument<*>) {
+    protected fun addArgument(argument: ICommandArgument<*>) {
         arguments.add(argument)
     }
 }

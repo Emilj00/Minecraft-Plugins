@@ -1,11 +1,11 @@
 package me.emiljoo.minecraftplugins.utilities.commands.arguments
 
-import me.emiljoo.minecraftplugins.utilities.commands.CommandArgument
+import me.emiljoo.minecraftplugins.utilities.commands.ICommandArgument
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class PlayerArgument : CommandArgument<Player> {
+class PlayerArgument : ICommandArgument<Player> {
     override fun parse(sender: CommandSender, input: String): Player? {
         return Bukkit.getPlayerExact(input)
     }
