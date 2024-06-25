@@ -54,7 +54,8 @@ class CombatTag : EnhancedModule() {
 
     override fun onEnable(plugin: EnhancedPlugin) {
         val configManager = plugin.configManager
-        combatTagTimeConfigField = ConfigField(configManager, "modules.combat-tag.combat-tag-time", 15)
+
+        combatTagTimeConfigField = ConfigField(configManager, "combat-tag.combat-tag-time", 15)
         combatTagEnabled = combatTagTimeConfigField.get() > 0
 
         playerDataManager = plugin.playerDataManager

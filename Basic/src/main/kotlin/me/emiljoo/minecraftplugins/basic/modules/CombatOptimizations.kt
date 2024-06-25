@@ -23,10 +23,10 @@ class CombatOptimizations : EnhancedModule() {
     override fun onEnable(plugin: EnhancedPlugin) {
         val configManager: ConfigManager = plugin.configManager
 
-        disableKnockbackResistance = ConfigField(configManager, "modules.combat-optimizations.disable-knockback-resistance", true)
-        enableSnowballKnockbackConfigField = ConfigField(configManager, "modules.combat-optimizations.enable-snowball-knockback", true)
-        attackSpeedConfigField = ConfigField(configManager, "modules.combat-optimizations.attack-speed", 4.0)
-        noDamageTicksConfigField = ConfigField(configManager, "modules.combat-optimizations.no-damage-ticks", 10)
+        disableKnockbackResistance = ConfigField(configManager, "combat-optimizations.disable-knockback-resistance", true)
+        enableSnowballKnockbackConfigField = ConfigField(configManager, "combat-optimizations.enable-snowball-knockback", true)
+        attackSpeedConfigField = ConfigField(configManager, "combat-optimizations.attack-speed", 4.0)
+        noDamageTicksConfigField = ConfigField(configManager, "combat-optimizations.no-damage-ticks", 10)
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {

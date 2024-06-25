@@ -17,7 +17,7 @@ class InventorySaver : EnhancedModule() {
     override fun onEnable(plugin: EnhancedPlugin) {
         val configManager: ConfigManager = plugin.configManager
 
-        percentageOfKeepInventory = ConfigField(configManager, "modules.inventory-saver.percentage-of-keep-inventory", 50)
+        percentageOfKeepInventory = ConfigField(configManager, "inventory-saver.percentage-of-keep-inventory", 50)
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {

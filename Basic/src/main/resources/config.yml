@@ -6,14 +6,15 @@ chat:
 
   message-format: "&f&l{player}&r&f: {message}"
 
-modules:
-  combat-tag:
-    enabled: false
-    combat-tag-time: 20
-  combat-optimizations:
-    disable-knockback-resistance: false
-    enable-snowball-knochback: false
-    attack-speed: 4.0
-    no-damage-ticks: 10
-  inventory-saver:
-    percentage-of-keep-inventory: 0
+combat-tag:
+  enabled: false
+  combat-tag-time: 20
+
+combat-optimizations:
+  disable-knockback-resistance: false
+  enable-snowball-knochback: false
+  attack-speed: 4.0
+  no-damage-ticks: 10
+
+inventory-saver:
+  percentage-of-keep-inventory: 0
