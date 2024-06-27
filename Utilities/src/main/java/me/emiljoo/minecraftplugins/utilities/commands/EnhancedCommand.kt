@@ -51,15 +51,18 @@ abstract class EnhancedCommand(
             return true
         }
 
-        val parsedArgs = mutableListOf<Any?>()
+        val parsedArgs: MutableList<Any?> = mutableListOf()
 
         for (index in arguments.indices) {
-            parsedArgs.add(arguments[index].parse(sender, args[index]))
+            if (index < args.size) {
+                parsedArgs.add(arguments[index].parse(sender, args[index]))
+            }
         }
 
         if (args.size > arguments.size) {
             for (index in arguments.size until args.size) {
-                parsedArgs.add(StringArgument().parse(sender, args[index]))
+                val stringArgument = StringArgument()
+                parsedArgs.add(stringArgument.parse(sender, args[index]))
             }
         }
 
@@ -81,4 +84,5 @@ abstract class EnhancedCommand(
         arguments.add(argument)
     }
 }
+
 

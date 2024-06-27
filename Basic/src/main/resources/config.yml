@@ -1,34 +1,45 @@
 # Basic config for Basic plugin
 
 chat:
-    player-join-message: "&e{player} joined the game"
-    player-quit-message: "&e{player} left the game"
+  player-join-message: "&e{player} joined the game"
+  player-quit-message: "&e{player} left the game"
 
-    message-format: "<{player}> {message}"
+  message-format: "<{player}> {message}"
+
+
+msg-and-respond:
+  message-to-format: "&o&7You whisper to {target}: {message}"
+  message-from-format: "&o&7{sender} whispers to you: {message}"
+
+  havent-message-anybody-error: "&4You haven't messaged anybody!"
+
 
 accounts:
-    login:
-        user-not-registered-message: "You are not registered!"
-        incorrect-password-message: "Incorrect password!"
-        user-already-logged-in-message: "You are already logged in!"
-    register:
-        failed-message: "Registration failed. You are already registered."
-        success-message: "You have successfully registered."
-    logout:
-        logout-message: "You has been successfully logged e"
+  login:
+    user-not-registered-message: "You are not registered!"
+    incorrect-password-message: "Incorrect password!"
+    user-already-logged-in-message: "You are already logged in!"
+  register:
+    failed-message: "Registration failed. You are already registered."
+    success-message: "You have successfully registered."
+  logout:
+    logout-message: "You has been successfully logged e"
 
-    password-regex: ".{3,}"
-    password-format-info: "Password must be at least 3 characters"
+  password-regex: ".{3,}"
+  password-format-info: "Password must have at least 3 characters"
+
 
 combat-tag:
-    enabled: false
-    combat-tag-time: 20
+  enabled: false
+  combat-tag-time: 20
+
 
 combat-optimizations:
-    disable-knockback-resistance: false
-    enable-snowball-knochback: false
-    attack-speed: 4.0
-    no-damage-ticks: 10
+  disable-knockback-resistance: false
+  enable-snowball-knochback: false
+  attack-speed: 4.0
+  no-damage-ticks: 10
+
 
 inventory-saver:
-    percentage-of-keep-inventory: 0
+  percentage-of-keep-inventory: 0
