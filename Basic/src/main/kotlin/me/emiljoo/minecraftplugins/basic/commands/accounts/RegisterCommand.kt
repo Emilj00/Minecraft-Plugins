@@ -5,7 +5,6 @@ import me.emiljoo.minecraftplugins.basic.controllers.AccountController
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
-import me.emiljoo.minecraftplugins.utilities.commands.arguments.StringArgument
 import me.emiljoo.minecraftplugins.utilities.config.ConfigField
 import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import org.bukkit.command.CommandSender
@@ -33,8 +32,6 @@ class RegisterCommand : EnhancedCommand(
             ConfigField(configManager, "accounts.register.success-message", "You have successfully registered.")
         registrationFailedConfigField =
             ConfigField(configManager, "accounts.register.failed-message", "Registration failed. You are already registered.")
-
-        addArgument(StringArgument())
     }
 
     override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger) {
@@ -43,7 +40,7 @@ class RegisterCommand : EnhancedCommand(
             return
         }
 
-        if (args.isEmpty() || args.size != 1) {
+        if (args.isEmpty()) {
             messenger.toCommandSender(sender, usage)
             return
         }
@@ -51,7 +48,7 @@ class RegisterCommand : EnhancedCommand(
         val basicPlugin: BasicPlugin = EnhancedPlugin.getInstance() as BasicPlugin
         val accountController: AccountController = basicPlugin.accountController
 
-        val password = args[0] as String
+        val password = args.joinToString(" ") { it.toString() }
         val player: Player = sender
 
         if (accountController.isUserAuthenticated(player.name)) {
@@ -69,6 +66,9 @@ class RegisterCommand : EnhancedCommand(
 
         if (registrationSuccess) {
             messenger.toCommandSender(sender, registrationSuccessConfigField.get())
+
+            player.allowFlight = false
+            player.isFlying = false
         } else {
             messenger.toCommandSender(sender, registrationFailedConfigField.get())
         }

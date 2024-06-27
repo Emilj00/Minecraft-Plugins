@@ -63,7 +63,7 @@ class AccountsModule : EnhancedModule(), Listener {
     }
 
     private fun isCommandAllowed(message: String): Boolean {
-        return message.startsWith("/r") || message.startsWith("/l")
+        return message.startsWith("/register") || message.startsWith("/l")
     }
 
     @EventHandler
@@ -159,6 +159,9 @@ class AccountsModule : EnhancedModule(), Listener {
         }
 
         messenger.toPlayer(player, "/login <password>")
+        
+        player.allowFlight = true
+        player.isFlying = true
     }
 
     @EventHandler

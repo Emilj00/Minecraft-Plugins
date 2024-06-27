@@ -3,6 +3,7 @@ package me.emiljoo.minecraftplugins.utilities.commands
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.LogLevel
 import me.emiljoo.minecraftplugins.utilities.Messenger
+import me.emiljoo.minecraftplugins.utilities.commands.arguments.StringArgument
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -35,7 +36,7 @@ abstract class EnhancedCommand(
     }
 
     override fun setName(name: String): Boolean {
-        messenger.toConsole(LogLevel.Warning, "$4You can't change command's name!")
+        messenger.toConsole(LogLevel.Warning, "&4You can't change command's name!")
         return false
     }
 
@@ -50,11 +51,15 @@ abstract class EnhancedCommand(
             return true
         }
 
-        val parsedArgs = arguments.mapIndexedNotNull { index, argument ->
-            if (index < args.size) {
-                argument.parse(sender, args[index])
-            } else {
-                null
+        val parsedArgs = mutableListOf<Any?>()
+
+        for (index in arguments.indices) {
+            parsedArgs.add(arguments[index].parse(sender, args[index]))
+        }
+
+        if (args.size > arguments.size) {
+            for (index in arguments.size until args.size) {
+                parsedArgs.add(StringArgument().parse(sender, args[index]))
             }
         }
 
@@ -76,3 +81,4 @@ abstract class EnhancedCommand(
         arguments.add(argument)
     }
 }
+
