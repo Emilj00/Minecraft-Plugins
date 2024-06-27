@@ -42,8 +42,8 @@ abstract class EnhancedPlugin : JavaPlugin() {
     override fun onDisable() {
         super.onDisable()
 
-        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Stopping server...") }
         moduleManager.onPluginStopped(this)
+        Bukkit.getOnlinePlayers().forEach { player: Player? -> player?.kickPlayer("Stopping server...") }
     }
 
     abstract fun getPluginPrefix(): String

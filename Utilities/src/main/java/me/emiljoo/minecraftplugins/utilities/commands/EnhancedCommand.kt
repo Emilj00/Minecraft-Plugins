@@ -50,8 +50,12 @@ abstract class EnhancedCommand(
             return true
         }
 
-        val parsedArgs = arguments.mapIndexed { index, argument ->
-            argument.parse(sender, args.getOrNull(index) ?: "")
+        val parsedArgs = arguments.mapIndexedNotNull { index, argument ->
+            if (index < args.size) {
+                argument.parse(sender, args[index])
+            } else {
+                null
+            }
         }
 
         onCommandExecution(sender, commandLabel, parsedArgs, messenger)

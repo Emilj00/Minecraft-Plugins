@@ -1,4 +1,4 @@
-package me.emiljoo.minecraftplugins.basic.commands
+package me.emiljoo.minecraftplugins.basic.commands.admin
 
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand

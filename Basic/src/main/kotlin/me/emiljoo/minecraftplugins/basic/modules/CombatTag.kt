@@ -1,5 +1,7 @@
 package me.emiljoo.minecraftplugins.basic.modules
 
+import me.emiljoo.minecraftplugins.basic.BasicPlugin
+import me.emiljoo.minecraftplugins.basic.controllers.AccountController
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.config.ConfigField
@@ -25,6 +27,7 @@ class CombatTag : EnhancedModule() {
         const val COMBAT_TIMER_KEY: String = "pvp-timer"
     }
 
+    private val accountController: AccountController = (EnhancedPlugin.getInstance() as BasicPlugin).accountController
     private lateinit var playerDataManager: PlayerDataManager
     private val timerController: TimerController = TimerController()
 
@@ -37,19 +40,20 @@ class CombatTag : EnhancedModule() {
         }
 
         if (timer.getValue() <= 0) {
-            return;
+            return
         }
 
         val playerData: PlayerData = timer.getOwnerPlayerData()
-        val player: Player = playerData.getOwner();
+        val player: Player = playerData.getOwner()
 
-        val textColor: String =
-            if (timer.getValue() % 2 == 0) ChatColor.GRAY.toString() else ChatColor.WHITE.toString()
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, getCombatTagTextComponent(timer))
+    }
 
+    private fun getCombatTagTextComponent(timer: TimerPlayerDataEntry): TextComponent {
+        val textColor: String = (if (timer.getValue() % 2 == 0) ChatColor.GRAY else ChatColor.WHITE).toString()
         val message: String = Messenger.colorize("&c&l> > > ${textColor}&lANTILOGOUT &c&l< < <")
-        val textComponent = TextComponent(message);
 
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, textComponent)
+        return TextComponent(message)
     }
 
     override fun onEnable(plugin: EnhancedPlugin) {
@@ -73,25 +77,37 @@ class CombatTag : EnhancedModule() {
             return
         }
 
-        if (event.entity is Player && event.damager is Player) {
-            handleCombatTagTimer(event.entity as Player)
-            handleCombatTagTimer(event.damager as Player)
+        if (event.entity !is Player || event.damager !is Player) {
+            return
         }
+
+
+        val victim: Player = event.entity as Player
+        val damager: Player = event.damager as Player
+
+        if (!accountController.isUserAuthenticated(victim.name) || !accountController.isUserAuthenticated(damager.name)) {
+            return
+        }
+
+        handleCombatTagTimer(victim)
+        handleCombatTagTimer(damager)
     }
 
     private fun handleCombatTagTimer(player: Player) {
         val playerData: PlayerData = playerDataManager.findPlayerData(player) ?: return
 
-        if (playerData.hasEntry(COMBAT_TIMER_KEY)) {
-            val victimCombatTimer = playerData.getDataEntry(COMBAT_TIMER_KEY) as TimerPlayerDataEntry
-            victimCombatTimer.resetTimer()
-        } else {
-            val timer = createCombatTimer(playerData)
+        val timerEntry = playerData.getDataEntry(COMBAT_TIMER_KEY) as? TimerPlayerDataEntry
 
-            timerController.addTimer(timer)
-            playerData.addDataEntry(COMBAT_TIMER_KEY, timer)
+        if (timerEntry != null) {
+            timerEntry.resetTimer()
+            return
         }
+
+        val timer: TimerPlayerDataEntry = createCombatTimer(playerData)
+        timerController.addTimer(timer)
+        playerData.addDataEntry(COMBAT_TIMER_KEY, timer)
     }
+
 
     private fun createCombatTimer(playerData: PlayerData): TimerPlayerDataEntry {
         return TimerPlayerDataEntry(combatTagTimeConfigField.get(), playerData)
@@ -104,9 +120,10 @@ class CombatTag : EnhancedModule() {
         }
 
         val player: Player = event.entity.player ?: return
-        val playerData: PlayerData? = playerDataManager.findPlayerData(player)
+        val playerData: PlayerData = playerDataManager.findPlayerData(player) ?: return
+        val playerDataEntry: PlayerDataEntry<*> = playerData.getDataEntry(COMBAT_TIMER_KEY) ?: return
 
-        val timerEntry = playerData!!.getDataEntry(COMBAT_TIMER_KEY) as TimerPlayerDataEntry
+        val timerEntry: TimerPlayerDataEntry = playerDataEntry as TimerPlayerDataEntry
         timerEntry.setTimerFinished()
     }
 
@@ -122,7 +139,6 @@ class CombatTag : EnhancedModule() {
         val timerEntry: PlayerDataEntry<*> = playerData.getDataEntry(COMBAT_TIMER_KEY) ?: return
 
         val combatTimer: TimerPlayerDataEntry = timerEntry as TimerPlayerDataEntry
-
         if (!combatTimer.isTimerFinished()) {
             player.health = 0.0
             combatTimer.setTimerFinished()

@@ -1,5 +1,6 @@
-package me.emiljoo.minecraftplugins.basic.commands
+package me.emiljoo.minecraftplugins.basic.commands.admin
 
+import me.emiljoo.minecraftplugins.basic.BasicPlugin
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
@@ -7,7 +8,8 @@ import me.emiljoo.minecraftplugins.utilities.commands.ICommandArgument
 import org.bukkit.command.CommandSender
 
 private enum class BasicCommandArgs {
-    Reload
+    Reload,
+    Reload_userdb
 }
 
 private class BasicCommandArgument : ICommandArgument<BasicCommandArgs> {
@@ -38,15 +40,21 @@ class BasicCommand : EnhancedCommand("basic", "basic.admin", usage = "/basic <ar
             return
         }
 
-        val basicCommandArgument: BasicCommandArgs = args[0] as BasicCommandArgs? ?: return
+        val basicCommandArgument: BasicCommandArgs = args[0] as BasicCommandArgs
 
         when (basicCommandArgument) {
             BasicCommandArgs.Reload -> handleReloadArg()
+            BasicCommandArgs.Reload_userdb -> handleReloadUserdb()
         }
     }
 
     private fun handleReloadArg() {
         val plugin: EnhancedPlugin = EnhancedPlugin.getInstance()
         plugin.configManager.reloadConfig()
+    }
+
+    private fun handleReloadUserdb() {
+        val plugin: BasicPlugin = EnhancedPlugin.getInstance() as BasicPlugin
+        plugin.accountController.reloadConfig()
     }
 }

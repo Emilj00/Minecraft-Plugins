@@ -5,6 +5,7 @@ import me.emiljoo.minecraftplugins.utilities.config.ConfigField
 import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
 import org.bukkit.World
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.inventory.ItemStack
@@ -26,7 +27,6 @@ class InventorySaver : EnhancedModule() {
     @EventHandler
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         val percentageOfKeepInventoryValue = percentageOfKeepInventory.get()
-
         if (percentageOfKeepInventoryValue <= 0) {
             return
         }
@@ -36,7 +36,7 @@ class InventorySaver : EnhancedModule() {
         // drops everything what is inside your inventory
         event.keepInventory = true
 
-        val player = event.entity
+        val player: Player = event.entity
 
         val world: World = player.location.world!!
         if (world.isGameRule("keepInventory")) {
@@ -49,7 +49,7 @@ class InventorySaver : EnhancedModule() {
 
         for (i in inventory.indices) {
             if (inventory[i] != null) {
-                val randomNumber = Random.nextInt(0, 2)
+                val randomNumber = Random.nextInt(0, 100)
                 if (randomNumber > percentageOfKeepInventoryValue) {
                     drops.remove(inventory[i])
                 } else {

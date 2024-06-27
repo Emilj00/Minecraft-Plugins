@@ -1,20 +1,34 @@
 # Basic config for Basic plugin
 
 chat:
-  player-join-message: "&7&l[&2&l+&7&l] &7{player}"
-  player-quit-message: "&7&l[&4&l-&7&l] &7{player}"
+    player-join-message: "&e{player} joined the game"
+    player-quit-message: "&e{player} left the game"
 
-  message-format: "&f&l{player}&r&f: {message}"
+    message-format: "<{player}> {message}"
+
+accounts:
+    login:
+        user-not-registered-message: "You are not registered!"
+        incorrect-password-message: "Incorrect password!"
+        user-already-logged-in-message: "You are already logged in!"
+    register:
+        failed-message: "Registration failed. You are already registered."
+        success-message: "You have successfully registered."
+    logout:
+        logout-message: "You has been successfully logged e"
+
+    password-regex: ".{3,}"
+    password-format-info: "Password must be at least 3 characters"
 
 combat-tag:
-  enabled: false
-  combat-tag-time: 20
+    enabled: false
+    combat-tag-time: 20
 
 combat-optimizations:
-  disable-knockback-resistance: false
-  enable-snowball-knochback: false
-  attack-speed: 4.0
-  no-damage-ticks: 10
+    disable-knockback-resistance: false
+    enable-snowball-knochback: false
+    attack-speed: 4.0
+    no-damage-ticks: 10
 
 inventory-saver:
-  percentage-of-keep-inventory: 0
+    percentage-of-keep-inventory: 0

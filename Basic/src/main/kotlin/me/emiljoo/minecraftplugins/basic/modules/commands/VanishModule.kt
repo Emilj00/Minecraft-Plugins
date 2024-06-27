@@ -1,6 +1,6 @@
 package me.emiljoo.minecraftplugins.basic.modules.commands
 
-import me.emiljoo.minecraftplugins.basic.commands.VanishCommand
+import me.emiljoo.minecraftplugins.basic.commands.admin.VanishCommand
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.data.PlayerData
 import me.emiljoo.minecraftplugins.utilities.data.PlayerDataManager

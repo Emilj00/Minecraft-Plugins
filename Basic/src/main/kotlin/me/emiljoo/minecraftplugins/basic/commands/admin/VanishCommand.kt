@@ -1,4 +1,4 @@
-package me.emiljoo.minecraftplugins.basic.commands
+package me.emiljoo.minecraftplugins.basic.commands.admin
 
 import me.emiljoo.minecraftplugins.basic.modules.ChatMessagesModule
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
@@ -19,7 +19,7 @@ class VanishCommand : EnhancedCommand(
         const val VANISH_ENTRY_NAME = "is-vanished"
     }
 
-    private val enhancedPlugin: EnhancedPlugin = EnhancedPlugin.getInstance();
+    private val enhancedPlugin: EnhancedPlugin = EnhancedPlugin.getInstance()
 
     override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger) {
         if (sender !is Player) {
@@ -34,12 +34,14 @@ class VanishCommand : EnhancedCommand(
         vanishEntry.toggleValue()
 
         if (vanishEntry.getValue()) {
-            val joinMessage = ChatMessagesModule.playerJoinConfigField.get().replace("{player}", player.name)
-            messenger.toAllPlayers(joinMessage, false)
-            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.hidePlayer(enhancedPlugin, player) }
-        } else {
             val quitMessage = ChatMessagesModule.playerQuitConfigField.get().replace("{player}", player.name)
             messenger.toAllPlayers(quitMessage, false)
+
+            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.hidePlayer(enhancedPlugin, player) }
+        } else {
+            val joinMessage = ChatMessagesModule.playerJoinConfigField.get().replace("{player}", player.name)
+            messenger.toAllPlayers(joinMessage, false)
+
             Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.showPlayer(enhancedPlugin, player) }
         }
     }
