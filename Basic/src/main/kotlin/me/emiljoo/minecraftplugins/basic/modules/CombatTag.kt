@@ -34,11 +34,9 @@ class CombatTag : EnhancedModule() {
     private lateinit var combatTagTimeConfigField: ConfigField<Int>
     private var combatTagEnabled: Boolean = true
 
-    private fun onTimersTick(timer: TimerPlayerDataEntry) {
-        if (!combatTagEnabled) {
-            return
-        }
+    private var isSpigotServer: Boolean = false
 
+    private fun onTimerTick(timer: TimerPlayerDataEntry) {
         if (timer.getValue() <= 0) {
             return
         }
@@ -62,10 +60,16 @@ class CombatTag : EnhancedModule() {
         combatTagTimeConfigField = ConfigField(configManager, "combat-tag.combat-tag-time", 15)
         combatTagEnabled = combatTagTimeConfigField.get() > 0
 
+        if (!combatTagEnabled) {
+            return
+        }
+
         playerDataManager = plugin.playerDataManager
         timerController.startTimers(plugin)
 
-        timerController.onTimerTick += ::onTimersTick
+        timerController.onTimerTick += ::onTimerTick
+
+        isSpigotServer = plugin.server.version.contains("Spigot")
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {
@@ -105,7 +109,7 @@ class CombatTag : EnhancedModule() {
 
         val timer: TimerPlayerDataEntry = createCombatTimer(playerData)
         timerController.addTimer(timer)
-        playerData.addDataEntry(COMBAT_TIMER_KEY, timer)
+        playerData.setDataEntry(COMBAT_TIMER_KEY, timer)
     }
 
 

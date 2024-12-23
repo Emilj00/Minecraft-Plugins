@@ -2,11 +2,16 @@ package me.emiljoo.minecraftplugins.basic.modules
 
 import me.emiljoo.minecraftplugins.basic.BasicPlugin
 import me.emiljoo.minecraftplugins.basic.controllers.AccountController
+import me.emiljoo.minecraftplugins.basic.enums.LoginFailureReason
+import me.emiljoo.minecraftplugins.basic.helpers.AccountHelper
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
+import me.emiljoo.minecraftplugins.utilities.Result
 import me.emiljoo.minecraftplugins.utilities.commands.CommandManager
+import me.emiljoo.minecraftplugins.utilities.extensions.isPremium
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
@@ -20,11 +25,14 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
+import org.bukkit.inventory.Inventory
 
 
 class AccountsModule : EnhancedModule(), Listener {
     private lateinit var accountController: AccountController
     private lateinit var messenger: Messenger
+
+    private val playersInventoryMap: MutableMap<Player, Inventory> = mutableMapOf()
 
     override fun onEnable(plugin: EnhancedPlugin) {
         accountController = (plugin as BasicPlugin).accountController
@@ -155,17 +163,38 @@ class AccountsModule : EnhancedModule(), Listener {
             player.teleport(startingWorld.spawnLocation)
 
             messenger.toPlayer(player, "/register <password>")
+
             return
         }
 
+        if (player.isPremium()) {
+            when (val playerLoginResult: Result<Location, LoginFailureReason> = accountController.loginPremiumPlayer(player)) {
+                is Result.Success -> {
+                    player.teleport(playerLoginResult.value)
+                }
+
+                else -> {
+                    return
+                }
+            }
+        }
+
         messenger.toPlayer(player, "/login <password>")
-        
+
         player.allowFlight = true
         player.isFlying = true
+
+        player.teleport(AccountHelper.getVoidLocation())
     }
 
     @EventHandler
     private fun onPlayerQuit(event: PlayerQuitEvent) {
+        val player: Player = event.player
+        handlePlayerDisconnect(player)
+    }
+
+    @EventHandler
+    private fun onPlayerKicked(event: PlayerKickEvent) {
         val player: Player = event.player
         handlePlayerDisconnect(player)
     }
@@ -176,7 +205,6 @@ class AccountsModule : EnhancedModule(), Listener {
         }
 
         accountController.logoutPlayer(player)
-        player.teleport(AccountController.getVoidLocation())
     }
 }
 

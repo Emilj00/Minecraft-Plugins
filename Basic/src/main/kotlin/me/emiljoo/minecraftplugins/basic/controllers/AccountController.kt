@@ -1,157 +1,122 @@
 package me.emiljoo.minecraftplugins.basic.controllers
 
 import me.emiljoo.minecraftplugins.basic.data.Account
+import me.emiljoo.minecraftplugins.basic.enums.LoginFailureReason
+import me.emiljoo.minecraftplugins.basic.enums.RegistrationResult
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
+import me.emiljoo.minecraftplugins.utilities.Result
 import me.emiljoo.minecraftplugins.utilities.config.ConfigField
 import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.World
 import org.bukkit.entity.Player
-import java.util.*
 
 class AccountController(plugin: EnhancedPlugin) {
-    companion object {
-        fun getVoidLocation(): Location {
-            val startingWorld: World = Bukkit.getWorlds()[0]
-            return Location(startingWorld, 0.0, -80.0, 0.0)
-        }
-    }
-
-    enum class LoginFailureReason {
-        USER_NOT_REGISTERED,
-        INCORRECT_PASSWORD,
-        USER_ALREADY_LOGGED_IN;
-
-        companion object {
-            private var userNotRegisteredMessage: String = "You are not registered!"
-            private var incorrectPasswordMessage: String = "Incorrect password!"
-            private var userAlreadyLoggedInMessage: String = "You are already logged in!"
-
-            fun initializeMessages(
-                userNotRegistered: String,
-                incorrectPassword: String,
-                userAlreadyLoggedIn: String
-            ) {
-                userNotRegisteredMessage = userNotRegistered
-                incorrectPasswordMessage = incorrectPassword
-                userAlreadyLoggedInMessage = userAlreadyLoggedIn
-            }
-        }
-
-        fun getMessage(): String {
-            return when (this) {
-                USER_NOT_REGISTERED -> userNotRegisteredMessage
-                INCORRECT_PASSWORD -> incorrectPasswordMessage
-                USER_ALREADY_LOGGED_IN -> userAlreadyLoggedInMessage
-            }
-        }
-    }
-
-    data class LoginResult(
-        val success: Boolean,
-        val location: Location?,
-        val failureReason: LoginFailureReason?
-    )
-
-
     private val usersConfigManager: ConfigManager = ConfigManager(plugin, "usersdb.yml")
     private val authenticatedPlayers: MutableList<Player> = mutableListOf()
-
-    private val userNotRegisteredMessageConfigField: ConfigField<String> =
-        ConfigField(usersConfigManager, "accounts.login.user-not-registered-message", "You are not registered!")
-    private val incorrectPasswordMessageConfigField: ConfigField<String> =
-        ConfigField(usersConfigManager, "accounts.login.incorrect-password-message", "Incorrect password!")
-    val userAlreadyLoggedInMessageConfigField: ConfigField<String> =
-        ConfigField(usersConfigManager, "accounts.login.user-already-logged-in-message", "You are already logged in!")
-
-    init {
-        LoginFailureReason.initializeMessages(
-            userNotRegisteredMessageConfigField.get(),
-            incorrectPasswordMessageConfigField.get(),
-            userAlreadyLoggedInMessageConfigField.get()
-        )
-    }
-
 
     private fun getUser(username: String): Account? {
         val userSectionPath = "users.$username"
         val passwordField = ConfigField(usersConfigManager, "$userSectionPath.password", "")
-        val worldUuidField = ConfigField(usersConfigManager, "$userSectionPath.worldUuid", "")
-        val posXField = ConfigField(usersConfigManager, "$userSectionPath.xPosition", 0.0)
-        val posYField = ConfigField(usersConfigManager, "$userSectionPath.yPosition", 0.0)
-        val posZField = ConfigField(usersConfigManager, "$userSectionPath.zPosition", 0.0)
 
-        val password = passwordField.get()
-        if (password.isEmpty()) return null
+        val password: String = passwordField.get()
+        if (password.isEmpty()) {
+            return null
+        }
 
-        val worldUuid = worldUuidField.get()
-        val posX = posXField.get()
-        val posY = posYField.get()
-        val posZ = posZField.get()
+        val worldUuid: String = ConfigField(usersConfigManager, "$userSectionPath.worldUuid", "").get()
+        val posX: Double = ConfigField(usersConfigManager, "$userSectionPath.xPosition", 0.0).get()
+        val posY: Double = ConfigField(usersConfigManager, "$userSectionPath.yPosition", 0.0).get()
+        val posZ: Double = ConfigField(usersConfigManager, "$userSectionPath.zPosition", 0.0).get()
 
         return Account(username, password, worldUuid, posX, posY, posZ)
     }
 
-    private fun saveUser(account: Account) {
-        val userSectionPath = "users.${account.username}"
-        ConfigField(usersConfigManager, "$userSectionPath.password", "").set(account.password)
-        ConfigField(usersConfigManager, "$userSectionPath.worldUuid", "").set(account.worldUuid)
-        ConfigField(usersConfigManager, "$userSectionPath.xPosition", 0.0).set(account.xPosition)
-        ConfigField(usersConfigManager, "$userSectionPath.yPosition", 0.0).set(account.yPosition)
-        ConfigField(usersConfigManager, "$userSectionPath.zPosition", 0.0).set(account.zPosition)
-        usersConfigManager.saveConfig()
+    private fun savePlayer(player: Player) {
+        val account: Account = getUser(player.name)!!
+        val playerLocation: Location = player.location
+
+        account.apply {
+            worldUuid = playerLocation.world!!.uid.toString()
+            playerLocation.x
+            playerLocation.y
+            playerLocation.z
+        }
+
+        saveAccount(account)
     }
 
-    fun registerPlayer(player: Player, password: String): Boolean {
+    private fun saveAccount(account: Account) {
+        val userSectionPath = "users.${account.username}"
+
+        with(usersConfigManager) {
+            ConfigField(this, "$userSectionPath.password", "").set(account.password)
+            ConfigField(this, "$userSectionPath.worldUuid", "").set(account.worldUuid)
+            ConfigField(this, "$userSectionPath.xPosition", 0.0).set(account.xPosition)
+            ConfigField(this, "$userSectionPath.yPosition", 0.0).set(account.yPosition)
+            ConfigField(this, "$userSectionPath.zPosition", 0.0).set(account.zPosition)
+
+            saveConfig()
+        }
+    }
+
+    fun registerPlayer(player: Player, password: String): RegistrationResult {
         val username = player.name
 
-        if (isUserRegistered(username)) return false
+        if (isUserRegistered(username)) {
+            return RegistrationResult.REGISTRATION_FAILED
+        }
+
+        authenticatedPlayers.add(player)
 
         val playerLocation: Location = player.location
         val worldUuid: String = playerLocation.world!!.uid.toString()
 
         val account = Account(username, password, worldUuid, playerLocation.x, playerLocation.y, playerLocation.z)
-        saveUser(account)
+        saveAccount(account)
 
-        authenticatedPlayers.add(player)
-        return true
+        return RegistrationResult.REGISTRATION_SUCCESS
     }
 
-    fun loginPlayer(player: Player, password: String): LoginResult {
-        val username: String = player.name
-        val account: Account = getUser(username) ?: return LoginResult(false, null, LoginFailureReason.USER_NOT_REGISTERED)
+    fun loginPlayer(player: Player, password: String): Result<Location, LoginFailureReason> {
+        val loginResult: Result<Location, LoginFailureReason> = performLogin(player, password)
 
-        if (account.password != password) {
-            return LoginResult(false, null, LoginFailureReason.INCORRECT_PASSWORD)
+        if (loginResult is Result.Success) {
+            authenticatedPlayers.add(player)
         }
 
-        if (authenticatedPlayers.contains(player)) {
-            return LoginResult(false, null, LoginFailureReason.USER_ALREADY_LOGGED_IN)
-        }
+        return loginResult
+    }
 
+    fun loginPremiumPlayer(player: Player): Result<Location, LoginFailureReason> {
         authenticatedPlayers.add(player)
 
-        val world: World = Bukkit.getWorld(UUID.fromString(account.worldUuid)) ?: Bukkit.getWorlds()[0]
-        val playerLocation = Location(world, account.xPosition, account.yPosition, account.zPosition)
+        val account = getUser(player.name) ?: return Result.Failure(LoginFailureReason.USER_NOT_REGISTERED)
+        return performLogin(player, account.password)
+    }
 
-        return LoginResult(true, playerLocation, null)
+    private fun performLogin(player: Player, password: String): Result<Location, LoginFailureReason> {
+        val account: Account = getUser(player.name) ?: return Result.Failure(LoginFailureReason.USER_NOT_REGISTERED)
+
+        return validateLogin(player, account, password)
+    }
+
+    private fun validateLogin(player: Player, account: Account, password: String): Result<Location, LoginFailureReason> {
+        if (authenticatedPlayers.contains(player)) {
+            return Result.Failure(LoginFailureReason.USER_ALREADY_LOGGED_IN)
+        }
+
+        if (password.isNotEmpty() && account.password != password) {
+            return Result.Failure(LoginFailureReason.INCORRECT_PASSWORD)
+        }
+
+        return Result.Success(account.getLocation())
     }
 
     fun logoutPlayer(player: Player) {
         authenticatedPlayers.remove(player)
-
-        val playerLocation: Location = player.location
-        val account: Account = getUser(player.name)!!
-
-        account.worldUuid = playerLocation.world!!.uid.toString()
-        account.xPosition = playerLocation.x
-        account.yPosition = playerLocation.y
-        account.zPosition = playerLocation.z
-
-        saveUser(account)
+        savePlayer(player)
     }
-
 
     fun isUserAuthenticated(username: String): Boolean {
         val player: Player = Bukkit.getPlayerExact(username) ?: return false
@@ -162,7 +127,7 @@ class AccountController(plugin: EnhancedPlugin) {
         return getUser(username) != null
     }
 
-    fun reloadConfig() {
+    fun reloadUsersDatabase() {
         usersConfigManager.reloadConfig()
     }
 }

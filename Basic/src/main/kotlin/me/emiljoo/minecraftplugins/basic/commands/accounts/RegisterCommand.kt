@@ -2,11 +2,11 @@ package me.emiljoo.minecraftplugins.basic.commands.accounts
 
 import me.emiljoo.minecraftplugins.basic.BasicPlugin
 import me.emiljoo.minecraftplugins.basic.controllers.AccountController
+import me.emiljoo.minecraftplugins.basic.enums.RegistrationResult
+import me.emiljoo.minecraftplugins.basic.helpers.AccountHelper
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
-import me.emiljoo.minecraftplugins.utilities.config.ConfigField
-import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -16,23 +16,7 @@ class RegisterCommand : EnhancedCommand(
     "basic.player",
     usage = "/register <password>"
 ) {
-    private val passwordRegexConfigField: ConfigField<String>
-    private val passwordFormatInfoConfigField: ConfigField<String>
-
-    private val registrationSuccessConfigField: ConfigField<String>
-    private val registrationFailedConfigField: ConfigField<String>
-
-    init {
-        val configManager: ConfigManager = EnhancedPlugin.getInstance().configManager
-
-        passwordRegexConfigField = ConfigField(configManager, "accounts.password-regex", ".{3,}")
-        passwordFormatInfoConfigField =
-            ConfigField(configManager, "accounts.password-format-info", "Password must be at least 3 characters")
-        registrationSuccessConfigField =
-            ConfigField(configManager, "accounts.register.success-message", "You have successfully registered.")
-        registrationFailedConfigField =
-            ConfigField(configManager, "accounts.register.failed-message", "Registration failed. You are already registered.")
-    }
+    private val accountController: AccountController = (EnhancedPlugin.getInstance() as BasicPlugin).accountController
 
     override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger) {
         if (sender !is Player) {
@@ -45,33 +29,35 @@ class RegisterCommand : EnhancedCommand(
             return
         }
 
-        val basicPlugin: BasicPlugin = EnhancedPlugin.getInstance() as BasicPlugin
-        val accountController: AccountController = basicPlugin.accountController
-
         val password = args.joinToString(" ") { it.toString() }
-        val player: Player = sender
 
-        if (accountController.isUserAuthenticated(player.name)) {
-            messenger.toCommandSender(sender, accountController.userAlreadyLoggedInMessageConfigField.get())
+        if (accountController.isUserAuthenticated(sender.name)) {
+            messenger.toCommandSender(sender, AccountHelper.userAlreadyLoggedInMessageConfig.get())
             return
         }
 
-        val passwordRegex = Regex(passwordRegexConfigField.get())
-        if (!passwordRegex.matches(password)) {
-            messenger.toPlayer(player, passwordFormatInfoConfigField.get())
+        if (checkPassword(password)) {
+            messenger.toCommandSender(sender, AccountHelper.passwordFormatInfoConfig.get())
             return
         }
 
-        val registrationSuccess = accountController.registerPlayer(player, password)
-
-        if (registrationSuccess) {
-            messenger.toCommandSender(sender, registrationSuccessConfigField.get())
-
-            player.allowFlight = false
-            player.isFlying = false
-        } else {
-            messenger.toCommandSender(sender, registrationFailedConfigField.get())
+        val registrationResult: RegistrationResult = accountController.registerPlayer(sender, password)
+        when (registrationResult) {
+            RegistrationResult.REGISTRATION_SUCCESS -> handleSuccessfulRegistration(messenger, sender)
+            RegistrationResult.REGISTRATION_FAILED -> messenger.toCommandSender(sender, AccountHelper.registrationFailedConfig.get())
         }
+    }
+
+    private fun checkPassword(password: String): Boolean {
+        val passwordRegex: Regex = AccountHelper.passwordRegexConfig.get().toRegex()
+        return passwordRegex.matches(password)
+    }
+
+    private fun handleSuccessfulRegistration(messenger: Messenger, sender: Player) {
+        messenger.toCommandSender(sender, AccountHelper.registrationSuccessConfig.get())
+
+        sender.allowFlight = false
+        sender.isFlying = false
     }
 }
 

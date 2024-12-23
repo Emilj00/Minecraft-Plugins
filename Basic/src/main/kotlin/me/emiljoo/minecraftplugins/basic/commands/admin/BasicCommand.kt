@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender
 
 private enum class BasicCommandArgs {
     Reload,
-    Reload_userdb
 }
 
 private class BasicCommandArgument : ICommandArgument<BasicCommandArgs> {
@@ -43,18 +42,16 @@ class BasicCommand : EnhancedCommand("basic", "basic.admin", usage = "/basic <ar
         val basicCommandArgument: BasicCommandArgs = args[0] as BasicCommandArgs
 
         when (basicCommandArgument) {
-            BasicCommandArgs.Reload -> handleReloadArg()
-            BasicCommandArgs.Reload_userdb -> handleReloadUserdb()
+            BasicCommandArgs.Reload -> handleReloadArg(sender, messenger)
         }
     }
 
-    private fun handleReloadArg() {
-        val plugin: EnhancedPlugin = EnhancedPlugin.getInstance()
-        plugin.configManager.reloadConfig()
-    }
-
-    private fun handleReloadUserdb() {
+    private fun handleReloadArg(sender: CommandSender, messenger: Messenger) {
         val plugin: BasicPlugin = EnhancedPlugin.getInstance() as BasicPlugin
-        plugin.accountController.reloadConfig()
+
+        plugin.accountController.reloadUsersDatabase()
+        plugin.configManager.reloadConfig()
+
+        messenger.toCommandSender(sender, "Basic plugin reloaded")
     }
 }

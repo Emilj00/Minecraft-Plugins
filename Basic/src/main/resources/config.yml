@@ -6,6 +6,10 @@ chat:
 
   message-format: "<{player}> {message}"
 
+  emotes: [
+    { ":smile:", "(◕‿◕)" }
+  ]
+
 
 msg-and-respond:
   message-to-format: "&o&7You whisper to {target}: {message}"
@@ -16,6 +20,7 @@ msg-and-respond:
 
 accounts:
   login:
+    successful-login-message: "You have successfully logged in!"
     user-not-registered-message: "You are not registered!"
     incorrect-password-message: "Incorrect password!"
     user-already-logged-in-message: "You are already logged in!"
@@ -38,7 +43,7 @@ combat-optimizations:
   disable-knockback-resistance: false
   enable-snowball-knochback: false
   attack-speed: 4.0
-  no-damage-ticks: 10
+  no-damage-ticks: 15
 
 
 inventory-saver:

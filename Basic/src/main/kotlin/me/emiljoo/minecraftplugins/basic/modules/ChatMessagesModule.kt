@@ -1,9 +1,8 @@
 package me.emiljoo.minecraftplugins.basic.modules
 
+import me.emiljoo.minecraftplugins.basic.helpers.ChatMessagesHelper
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
-import me.emiljoo.minecraftplugins.utilities.config.ConfigField
-import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
 import org.bukkit.Bukkit
 import org.bukkit.Sound
@@ -15,19 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 
 
 class ChatMessagesModule : EnhancedModule() {
-    companion object {
-        lateinit var playerJoinConfigField: ConfigField<String>
-        lateinit var playerQuitConfigField: ConfigField<String>
-    }
-
-    private lateinit var playerMessageFormatConfigField: ConfigField<String>
-
     override fun onEnable(plugin: EnhancedPlugin) {
-        val configManager: ConfigManager = plugin.configManager
-
-        playerJoinConfigField = ConfigField(configManager, "chat.player-join-message", "&e{player} joined the game")
-        playerQuitConfigField = ConfigField(configManager, "chat.player-quit-message", "&e{player} left the game")
-        playerMessageFormatConfigField = ConfigField(configManager, "chat.message-format", "<{player}> {message}")
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {
@@ -37,7 +24,7 @@ class ChatMessagesModule : EnhancedModule() {
     @EventHandler
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         val player: Player = event.player
-        val message: String = playerJoinConfigField.get().replace("{player}", player.name)
+        val message: String = ChatMessagesHelper.playerJoinMessageConfig.get().replace("{player}", player.name)
 
         event.joinMessage = Messenger.colorize(message)
     }
@@ -45,14 +32,15 @@ class ChatMessagesModule : EnhancedModule() {
     @EventHandler
     private fun onPlayerLeave(event: PlayerQuitEvent) {
         val player: Player = event.player
-        val message: String = playerQuitConfigField.get().replace("{player}", player.name)
+        val message: String = ChatMessagesHelper.playerQuitMessageConfig.get().replace("{player}", player.name)
 
         event.quitMessage = Messenger.colorize(message)
     }
 
     @EventHandler
     private fun onAsyncPlayerChat(event: AsyncPlayerChatEvent) {
-        val messageFormat = playerMessageFormatConfigField.get()
+        val messageFormat = ChatMessagesHelper.playerMessageFormatConfig
+            .get()
             .replace("{player}", "%1\$s")
             .replace("{message}", "%2\$s")
 
@@ -60,14 +48,9 @@ class ChatMessagesModule : EnhancedModule() {
         val playersOnWhichSoundWasPlayed: MutableList<Player> = mutableListOf()
 
         for (i in message.indices) {
-            var wordInMessage = message[i]
-                .replace(":smile:".toRegex(), "(◕‿◕)")
-                .replace(":lenny:".toRegex(), "(͡° ͜ʖ ͡°)")
-                .replace(":uwu:".toRegex(), "(˘ω˘)")
-                .replace(":confused:".toRegex(), "(•ิ_•ิ)")
+            var wordInMessage: String = ChatMessagesHelper.applyEmotes(message[i]);
 
-
-            val playerName = wordInMessage.replace('@', ' ').trim()
+            val playerName: String = wordInMessage.replace('@', ' ').trim()
             val player: Player? = Bukkit.getPlayerExact(playerName)
 
             if (player != null && player.isOnline) {

@@ -2,8 +2,7 @@ package me.emiljoo.minecraftplugins.basic.helpers
 
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.config.ConfigField
-import me.emiljoo.minecraftplugins.utilities.data.PlayerData
-import me.emiljoo.minecraftplugins.utilities.data.types.InGamePlayerDataEntry
+import me.emiljoo.minecraftplugins.utilities.data.types.PlayerEntityDataEntry
 import org.bukkit.entity.Player
 
 object MessageHelper {
@@ -13,46 +12,41 @@ object MessageHelper {
     private val playerDataManager = EnhancedPlugin.getInstance().playerDataManager
     private val messenger = EnhancedPlugin.getMessenger()
 
-    val messageToFormat: ConfigField<String> =
-        ConfigField(configManager, "msg-and-respond.message-to-format", "&o&7You whisper to {target}: {message}")
-    val messageFromFormat: ConfigField<String> =
-        ConfigField(configManager, "msg-and-respond.message-from-format", "&o&7{sender} whispers to you: {message}")
-    val haventMessagedAnybodyError: ConfigField<String> =
-        ConfigField(configManager, "msg-and-respond.havent-messaged-anybody-error", "&4You haven't messaged anybody!")
+    private const val DEFAULT_MESSAGE_TO_FORMAT = "&o&7You whisper to {target}: {message}"
+    private const val DEFAULT_MESSAGE_FROM_FORMAT = "&o&7{sender} whispers to you: {message}"
+    private const val DEFAULT_HAVENT_MESSAGED_ANYBODY_ERROR = "&4You haven't messaged anybody!"
 
-    fun sendMessageAndHandleData(
-        sender: Player,
-        target: Player,
-        message: String,
-    ) {
-        val toMessage = messageToFormat
-            .get()
-            .replace("{target}", target.name)
-            .replace("{sender}", sender.name)
-            .replace("{message}", message)
+    private val messageToFormatConfig = configField("msg-and-respond.message-to-format", DEFAULT_MESSAGE_TO_FORMAT)
+    private val messageFromFormatConfig = configField("msg-and-respond.message-from-format", DEFAULT_MESSAGE_FROM_FORMAT)
 
-        val fromMessage = messageFromFormat
-            .get()
-            .replace("{target}", target.name)
-            .replace("{sender}", sender.name)
-            .replace("{message}", message)
+    val haventMessagedAnybodyErrorConfig =
+        configField("msg-and-respond.havent-messaged-anybody-error", DEFAULT_HAVENT_MESSAGED_ANYBODY_ERROR)
+
+    fun sendMessageAndHandleData(sender: Player, target: Player, message: String) {
+        val toMessage = formatMessage(messageToFormatConfig.get(), sender.name, target.name, message)
+        val fromMessage = formatMessage(messageFromFormatConfig.get(), sender.name, target.name, message)
 
         messenger.toCommandSender(sender, toMessage, false)
         messenger.toCommandSender(target, fromMessage, false)
 
-        val senderData: PlayerData? = playerDataManager.findPlayerData(sender)
-        handlePlayerData(senderData, target)
-
-        val targetData: PlayerData? = playerDataManager.findPlayerData(target)
-        handlePlayerData(targetData, sender)
+        handlePlayerData(sender, target)
+        handlePlayerData(target, sender)
     }
 
-    private fun handlePlayerData(playerData: PlayerData?, playerToSave: Player) {
-        if (playerData == null) {
-            return
-        }
+    private fun formatMessage(format: String, sender: String, target: String, message: String): String {
+        return format
+            .replace("{sender}", sender)
+            .replace("{target}", target)
+            .replace("{message}", message)
+    }
 
-        val playerDataEntry = InGamePlayerDataEntry(playerToSave, playerData)
-        playerData.addDataEntry(MSG_PLAYER_DATA_KEY, playerDataEntry)
+    private fun handlePlayerData(player: Player, playerToSave: Player) {
+        val playerData = playerDataManager.findPlayerData(player) ?: return
+        val playerDataEntry = PlayerEntityDataEntry(playerToSave, playerData)
+        playerData.setDataEntry(MSG_PLAYER_DATA_KEY, playerDataEntry)
+    }
+
+    private fun configField(path: String, default: String): ConfigField<String> {
+        return ConfigField(configManager, path, default)
     }
 }

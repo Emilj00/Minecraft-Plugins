@@ -13,12 +13,12 @@ import kotlin.random.Random
 
 
 class InventorySaver : EnhancedModule() {
-    private lateinit var percentageOfKeepInventory: ConfigField<Int>
+    private lateinit var percentageOfKeepInventoryConfig: ConfigField<Int>
 
     override fun onEnable(plugin: EnhancedPlugin) {
         val configManager: ConfigManager = plugin.configManager
 
-        percentageOfKeepInventory = ConfigField(configManager, "inventory-saver.percentage-of-keep-inventory", 50)
+        percentageOfKeepInventoryConfig = ConfigField(configManager, "inventory-saver.percentage-of-keep-inventory", 50)
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {
@@ -26,7 +26,7 @@ class InventorySaver : EnhancedModule() {
 
     @EventHandler
     private fun onPlayerDeath(event: PlayerDeathEvent) {
-        val percentageOfKeepInventoryValue = percentageOfKeepInventory.get()
+        val percentageOfKeepInventoryValue = percentageOfKeepInventoryConfig.get()
         if (percentageOfKeepInventoryValue <= 0) {
             return
         }

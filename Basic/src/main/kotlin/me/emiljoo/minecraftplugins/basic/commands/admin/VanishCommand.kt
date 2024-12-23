@@ -1,6 +1,6 @@
 package me.emiljoo.minecraftplugins.basic.commands.admin
 
-import me.emiljoo.minecraftplugins.basic.modules.ChatMessagesModule
+import me.emiljoo.minecraftplugins.basic.helpers.ChatMessagesHelper
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
@@ -27,22 +27,23 @@ class VanishCommand : EnhancedCommand(
             return
         }
 
-        val player: Player = sender
-        val playerData = enhancedPlugin.playerDataManager.findPlayerData(player)
+        val playerData = enhancedPlugin.playerDataManager.findPlayerData(sender) ?: return
 
-        val vanishEntry = playerData!!.getDataEntry(VANISH_ENTRY_NAME) as BoolPlayerDataEntry
+        val vanishEntry = playerData.getDataEntry(VANISH_ENTRY_NAME) as BoolPlayerDataEntry
         vanishEntry.toggleValue()
 
-        if (vanishEntry.getValue()) {
-            val quitMessage = ChatMessagesModule.playerQuitConfigField.get().replace("{player}", player.name)
+        val isPlayerVanished: Boolean = vanishEntry.getValue();
+
+        if (isPlayerVanished) {
+            val quitMessage = ChatMessagesHelper.playerQuitMessageConfig.get().replace("{player}", sender.name)
             messenger.toAllPlayers(quitMessage, false)
 
-            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.hidePlayer(enhancedPlugin, player) }
+            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.hidePlayer(enhancedPlugin, sender) }
         } else {
-            val joinMessage = ChatMessagesModule.playerJoinConfigField.get().replace("{player}", player.name)
+            val joinMessage = ChatMessagesHelper.playerJoinMessageConfig.get().replace("{player}", sender.name)
             messenger.toAllPlayers(joinMessage, false)
 
-            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.showPlayer(enhancedPlugin, player) }
+            Bukkit.getOnlinePlayers().forEach { onlinePlayer -> onlinePlayer.showPlayer(enhancedPlugin, sender) }
         }
     }
 }

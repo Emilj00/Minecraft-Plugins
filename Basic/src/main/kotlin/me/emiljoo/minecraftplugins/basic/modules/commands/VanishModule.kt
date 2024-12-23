@@ -32,7 +32,7 @@ class VanishModule : EnhancedModule() {
 
         if (!playerData.hasEntry(VanishCommand.VANISH_ENTRY_NAME)) {
             val vanishEntry = BoolPlayerDataEntry(false, playerData)
-            playerData.addDataEntry(VanishCommand.VANISH_ENTRY_NAME, vanishEntry)
+            playerData.setDataEntry(VanishCommand.VANISH_ENTRY_NAME, vanishEntry)
         }
 
         Bukkit.getOnlinePlayers().forEach { onlinePlayer ->
@@ -40,7 +40,7 @@ class VanishModule : EnhancedModule() {
                 val onlinePlayerData: PlayerData = playerDataManager.findPlayerData(onlinePlayer) ?: return
                 val vanishPlayerData = onlinePlayerData.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
 
-                if (vanishPlayerData.getValue()) {
+                if (vanishPlayerData.getValue() == true) {
                     playerThatJoin.hidePlayer(enhancedPlugin, onlinePlayer)
                 } else {
                     playerThatJoin.showPlayer(enhancedPlugin, onlinePlayer)
@@ -50,7 +50,7 @@ class VanishModule : EnhancedModule() {
 
         val vanishEntry = playerData.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
 
-        if (!vanishEntry.getValue()) {
+        if (vanishEntry.getValue() == false) {
             return
         }
 
@@ -64,7 +64,7 @@ class VanishModule : EnhancedModule() {
 
         val vanishEntry = playerData?.getDataEntry(VanishCommand.VANISH_ENTRY_NAME) as BoolPlayerDataEntry
 
-        if (!vanishEntry.getValue()) {
+        if (vanishEntry.getValue() == false) {
             return
         }
 

@@ -1,17 +1,12 @@
 package me.emiljoo.minecraftplugins.utilities.data
 
 import org.bukkit.entity.Player
-import java.util.HashMap
 
 class PlayerData(private val ownerPlayer: Player) {
     private val playerDataEntryList: HashMap<String, PlayerDataEntry<*>> = HashMap();
 
-    fun addDataEntry(entryName: String, dataEntry: PlayerDataEntry<*>) {
-        if (hasEntry(entryName)) {
-            return
-        }
-
-        playerDataEntryList[entryName] = dataEntry
+    fun setDataEntry(entryName: String, dataEntry: PlayerDataEntry<*>) {
+        playerDataEntryList[entryName] = dataEntry;
     }
 
     fun getDataEntry(entryName: String): PlayerDataEntry<*>? {

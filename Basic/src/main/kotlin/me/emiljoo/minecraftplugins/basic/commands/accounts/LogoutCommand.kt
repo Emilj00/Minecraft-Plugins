@@ -2,11 +2,10 @@ package me.emiljoo.minecraftplugins.basic.commands.accounts
 
 import me.emiljoo.minecraftplugins.basic.BasicPlugin
 import me.emiljoo.minecraftplugins.basic.controllers.AccountController
+import me.emiljoo.minecraftplugins.basic.helpers.AccountHelper
 import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.Messenger
 import me.emiljoo.minecraftplugins.utilities.commands.EnhancedCommand
-import me.emiljoo.minecraftplugins.utilities.config.ConfigField
-import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -15,13 +14,7 @@ class LogoutCommand : EnhancedCommand(
     "basic.player",
     usage = "/logout"
 ) {
-    private val logoutMessageConfigField: ConfigField<String>
-
-    init {
-        val configManager: ConfigManager = EnhancedPlugin.getInstance().configManager
-
-        logoutMessageConfigField = ConfigField(configManager, "accounts.logout.logout-message", "You has been successfully logged out.")
-    }
+    private val accountController: AccountController = (EnhancedPlugin.getInstance() as BasicPlugin).accountController
 
     override fun onCommandExecution(sender: CommandSender, commandLabel: String, args: List<Any?>, messenger: Messenger) {
         if (sender !is Player) {
@@ -29,14 +22,9 @@ class LogoutCommand : EnhancedCommand(
             return
         }
 
-        val basicPlugin: BasicPlugin = EnhancedPlugin.getInstance() as BasicPlugin
-        val accountController: AccountController = basicPlugin.accountController
+        accountController.logoutPlayer(sender)
+        sender.teleport(AccountHelper.getVoidLocation())
 
-        val player: Player = sender
-
-        accountController.logoutPlayer(player)
-        player.teleport(AccountController.getVoidLocation())
-
-        messenger.toCommandSender(sender, logoutMessageConfigField.get())
+        messenger.toCommandSender(sender, AccountHelper.logoutMessageConfig.get())
     }
 }

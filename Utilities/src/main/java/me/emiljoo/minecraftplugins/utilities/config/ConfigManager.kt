@@ -34,6 +34,7 @@ class ConfigManager(private val plugin: EnhancedPlugin, private val fileName: St
 
     fun reloadConfig() {
         config = YamlConfiguration.loadConfiguration(configFile)
+        onConfigChangedEvent.invoke(this)
     }
 
     fun getConfig(): FileConfiguration {

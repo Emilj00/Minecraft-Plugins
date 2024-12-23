@@ -3,4 +3,3 @@ version: 1.0
 main: me.emiljoo.minecraftplugins.basic.BasicPlugin
 description: Basic functionality for Minecraft Server
 author: Emilj00
-api-version: 1.20

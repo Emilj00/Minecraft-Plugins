@@ -24,6 +24,7 @@ private class GameModeArgument : ICommandArgument<GameMode> {
     }
 }
 
+// TODO: Add command messages to config
 class GamemodeCommand : EnhancedCommand(
     "gamemode",
     "basic.admin",
@@ -45,12 +46,13 @@ class GamemodeCommand : EnhancedCommand(
     }
 
     private fun handleNoArgs(sender: CommandSender, messenger: Messenger) {
-        if (sender is Player) {
-            togglePlayerGameMode(sender)
-            messenger.toCommandSender(sender, "Your game mode has been toggled!")
-        } else {
+        if (sender !is Player) {
             messenger.toCommandSender(sender, usage)
+            return
         }
+
+        togglePlayerGameMode(sender)
+        messenger.toCommandSender(sender, "Your game mode has been toggled!")
     }
 
     private fun togglePlayerGameMode(player: Player) {
@@ -59,12 +61,13 @@ class GamemodeCommand : EnhancedCommand(
     }
 
     private fun handleOneArg(sender: CommandSender, messenger: Messenger, gameMode: GameMode) {
-        if (sender is Player) {
-            sender.gameMode = gameMode
-            messenger.toCommandSender(sender, "Your game mode has been changed to &4${gameMode.toString().lowercase()}&r.")
-        } else {
+        if (sender !is Player) {
             messenger.toCommandSender(sender, "You have to specify the target!")
+            return
         }
+
+        sender.gameMode = gameMode
+        messenger.toCommandSender(sender, "Your game mode has been changed to &4${gameMode.toString().lowercase()}&r.")
     }
 
     private fun handleTwoArgs(sender: CommandSender, gameMode: GameMode, player: Player?, messenger: Messenger) {

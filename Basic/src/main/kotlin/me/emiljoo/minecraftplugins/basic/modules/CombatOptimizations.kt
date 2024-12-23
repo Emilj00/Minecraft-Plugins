@@ -4,6 +4,7 @@ import me.emiljoo.minecraftplugins.utilities.EnhancedPlugin
 import me.emiljoo.minecraftplugins.utilities.config.ConfigField
 import me.emiljoo.minecraftplugins.utilities.config.ConfigManager
 import me.emiljoo.minecraftplugins.utilities.modules.EnhancedModule
+import org.bukkit.Bukkit
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.EntityType
@@ -15,18 +16,24 @@ import org.bukkit.event.player.PlayerJoinEvent
 
 
 class CombatOptimizations : EnhancedModule() {
-    private lateinit var disableKnockbackResistance: ConfigField<Boolean>
-    private lateinit var enableSnowballKnockbackConfigField: ConfigField<Boolean>
-    private lateinit var attackSpeedConfigField: ConfigField<Double>
-    private lateinit var noDamageTicksConfigField: ConfigField<Int>
+    private lateinit var disableKnockbackResistanceConfig: ConfigField<Boolean>
+    private lateinit var enableSnowballKnockbackConfig: ConfigField<Boolean>
+    private lateinit var attackSpeedConfig: ConfigField<Double>
+    private lateinit var noDamageTicksConfig: ConfigField<Int>
 
     override fun onEnable(plugin: EnhancedPlugin) {
         val configManager: ConfigManager = plugin.configManager
 
-        disableKnockbackResistance = ConfigField(configManager, "combat-optimizations.disable-knockback-resistance", true)
-        enableSnowballKnockbackConfigField = ConfigField(configManager, "combat-optimizations.enable-snowball-knockback", true)
-        attackSpeedConfigField = ConfigField(configManager, "combat-optimizations.attack-speed", 4.0)
-        noDamageTicksConfigField = ConfigField(configManager, "combat-optimizations.no-damage-ticks", 10)
+        disableKnockbackResistanceConfig = ConfigField(configManager, "combat-optimizations.disable-knockback-resistance", true)
+        enableSnowballKnockbackConfig = ConfigField(configManager, "combat-optimizations.enable-snowball-knockback", true)
+        attackSpeedConfig = ConfigField(configManager, "combat-optimizations.attack-speed", 4.0)
+        noDamageTicksConfig = ConfigField(configManager, "combat-optimizations.no-damage-ticks", 15)
+
+        configManager.onConfigChangedEvent += ::onConfigChanged
+    }
+
+    private fun onConfigChanged(configManager: ConfigManager) {
+        Bukkit.getOnlinePlayers().forEach { p -> setAttributes(p) }
     }
 
     override fun onDisable(plugin: EnhancedPlugin) {
@@ -34,12 +41,12 @@ class CombatOptimizations : EnhancedModule() {
 
     @EventHandler
     private fun onPlayerJoin(event: PlayerJoinEvent) {
-        setAttackSpeed(event.player)
+        setAttributes(event.player)
     }
 
     @EventHandler
     private fun onEntityDamage(event: EntityDamageByEntityEvent) {
-        if (!disableKnockbackResistance.get()) {
+        if (!disableKnockbackResistanceConfig.get()) {
             return
         }
 
@@ -56,7 +63,7 @@ class CombatOptimizations : EnhancedModule() {
 
     @EventHandler
     private fun onEntityHit(e: EntityDamageByEntityEvent) {
-        if (!enableSnowballKnockbackConfigField.get()) {
+        if (!enableSnowballKnockbackConfig.get()) {
             return
         }
 
@@ -75,10 +82,10 @@ class CombatOptimizations : EnhancedModule() {
         }
     }
 
-    private fun setAttackSpeed(player: Player) {
+    private fun setAttributes(player: Player) {
         val attackSpeedAttribute: AttributeInstance = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED) ?: return
+        attackSpeedAttribute.baseValue = attackSpeedConfig.get()
 
-        player.maximumNoDamageTicks = noDamageTicksConfigField.get()
-        attackSpeedAttribute.baseValue = attackSpeedConfigField.get()
+        player.maximumNoDamageTicks = noDamageTicksConfig.get()
     }
 }
